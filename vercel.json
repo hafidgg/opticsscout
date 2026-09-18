@@ -1,0 +1,3 @@
+{
+  "buildCommand": "npx prisma generate && DATABASE_URL=\"$DATABASE_URL_UNPOOLED\" npx prisma migrate deploy && next build"
+}

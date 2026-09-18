@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — see PROJECT_PLAN.md / TODO.md Phase 3 design plan.
+ * Grounded in "research tool you trust before spending money", not a generic
+ * SaaS-card or AI-blog look. Palette avoids the flagged cream+terracotta and
+ * near-black+neon defaults.
+ */
+:root {
+  --color-ink: #1c2b24;       /* deep pine — headings, primary text */
+  --color-paper: #f7f5f0;     /* warm paper background */
+  --color-paper-raised: #ffffff;
+  --color-accent: #b4622e;    /* burnt terracotta — CTAs, prices */
+  --color-accent-hover: #954f24;
+  --color-good: #2f6b4f;      /* moss green — "good fit" / in-stock signals */
+  --color-muted: #6b6459;     /* warm grey — secondary text */
+  --color-border: #e2ddd2;    /* warm hairline border */
+}
+
+@theme inline {
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
