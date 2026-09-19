@@ -3,8 +3,6 @@ import type { Metadata } from "next";
 import { getCategoryBySlug, getAllCategorySlugs, getProductBySlug } from "@/lib/content/repository";
 import { getLowestPrice } from "@/lib/content/pricing";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { buildBreadcrumbJsonLd } from "@/lib/seo/structured-data";
-import { JsonLd } from "@/components/seo/JsonLd";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ProductCard, type ProductCardData } from "@/components/product/ProductCard";
 
@@ -88,7 +86,6 @@ export default async function CategoryPage({ params }: PageProps) {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <JsonLd data={buildBreadcrumbJsonLd(breadcrumbSegments)} />
       <Breadcrumbs segments={breadcrumbSegments} />
 
       <h1 className="mt-4 font-serif text-3xl text-[var(--color-ink)]">{category.name}</h1>

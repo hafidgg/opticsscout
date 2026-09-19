@@ -543,3 +543,88 @@ promoting anything to INDEXABLE.
       (bot-blocking — same pattern as Amazon and OpticsPlanet earlier in this
       doc) but a `WebFetch` render confirmed it's a real, matching page (title
       "Vortex Optics Ranger 1300 Laser Rangefinder 6x"), not a 404/error.
+
+- [x] `PASS` — Full production-readiness audit + hardening pass (code changes
+      only — **not yet deployed to production**; build/route-verified via a
+      Vercel *preview* deployment per this task's explicit "do not run `vercel
+      --prod`" rule, so production still runs the pre-audit code until someone
+      explicitly redeploys). Confirmed via direct code read + a real preview
+      build, not assumed:
+      - **Fixed a real duplicate-JSON-LD bug**: `compare/[slug]`, `best/[slug]`,
+        `alternatives/[slug]`, `guides/[slug]`, and `categories/[category]` were
+        all rendering `<Breadcrumbs>` (which itself emits `BreadcrumbList`
+        JSON-LD) AND a second, separate `<JsonLd data={buildBreadcrumbJsonLd(...)}>`
+        with identical content — two duplicate schema blocks per page. Only
+        `products/[slug]` was already correct. Removed the redundant call in all
+        5 files; verified live on preview: compare/categories/alternatives pages
+        now emit exactly 1 `BreadcrumbList` block (was 2).
+      - **Removed a fabricated "Top pick" badge** on `/compare/[slug]` (hardcoded
+        `tableProducts[0].bestForLabel = "Top pick"`, unconditionally, regardless
+        of any real ranking) and `/best/[slug]` (badge on card index 0). Both were
+        driven purely by array/DB insertion order, not any documented editorial
+        ranking — and directly contradicted this site's own real verdict text in
+        at least one live case (the Diamondback/Monarch M5 comparison's verdict
+        explicitly says "Neither is the wrong choice; the right one depends..."
+        while the UI was simultaneously badging the Diamondback "Top pick").
+        Verified live on preview: no "Top pick" text anywhere on the rendered
+        compare page now; the real `verdict` prose is unchanged and still shown.
+      - **Added a custom `not-found.tsx`**: previously a broken/mistyped URL fell
+        through to Next's bare, unbranded default 404 (confirmed live on
+        production before this fix — no header/footer/nav, no way back into the
+        site). New page uses the existing design tokens, links home and to
+        `/categories`. Verified live on preview.
+      - **Added a specifications table + source citation to `/products/[slug]`**:
+        the product page previously showed verdict/pros/cons but never rendered
+        `Product.specifications` at all (only `/compare` pages did, via
+        `ComparisonTable`) — a real, sourced JSON field going completely unused
+        on the page it belongs to most. Added `ProductSpecifications` (shares
+        `formatSpecLabel`/`formatSpecValue`/`getSortedSpecKeys` with
+        `ComparisonTable` via new `lib/content/specifications.ts`, extracted so
+        the two never drift) plus a `getProductBySlug()` addition that computes
+        a real `"Source: X — Last verified: [actual SourceRecord.retrievedAt]"`
+        line from that product's own `SourceRecord` rows — never a fabricated
+        date. Handles one pre-existing data quirk found while verifying against
+        real data: one `SourceRecord` (Leupold RX-1400i) stores `field` as a
+        comma-separated list instead of one row per field; matching now splits on
+        `,` so that row isn't silently dropped. Verified against all 6 live
+        optics products via a direct query — 6/6 resolve a real source name and
+        date; verified the rendered HTML live on preview (spec table + "Source:
+        Vortex Optics official product page — Last verified: September 7, 2026"
+        for the Diamondback HD 8x42).
+      - **Fixed real search gaps** (Phase 6 test terms from the audit brief):
+        `searchContent()` previously matched only `product.name` — "binoculars",
+        "rangefinder", and "spotting scope" all returned zero results despite
+        being exactly the kind of query a real visitor would type (no product
+        name contains those words; they're in `shortDescription` instead, and
+        "binoculars" is plural where the copy says "binocular"). Expanded the
+        matched corpus to include `brand`/`shortDescription`, and added a minimal
+        trailing-"s" singular fallback (no tokenizer/external search service
+        added). Verified live on preview: all 6 required test queries (Vortex,
+        Nikon, 8x42, binoculars, rangefinder, spotting scope) now return the
+        correct products.
+      - **Confirmed, did not change** (verified true, not assumed): canonical
+        paths/unique metaTitle+metaDescription on all 9 live pieces; robots.txt +
+        per-page noindex meta both still correctly block everything on the
+        Vercel subdomain; sitemap has no duplicate/phantom/temp-domain URLs (23
+        entries, all real, all INDEXABLE-only); affiliate click redirect
+        (`/api/click/[productId]/[merchantId]`) tested live on production for
+        both the Amazon and MidwayUSA offers — correct destination, no loop, no
+        internal detail leaked, graceful 404 for a bad id; no `<img>` tags
+        anywhere so no broken-image risk; no hardcoded reference to the temporary
+        `*.vercel.app` domain anywhere in source (only a code comment mentions
+        it); JSON-LD never fabricates `aggregateRating`/sku/mpn (correctly
+        omitted — no such real field exists in the data model).
+      - **Known, not fixed — flagged, not a blocker**: 11 of 43 vitest tests
+        (the DB-backed integration suite) fail locally with connection timeouts.
+        Root cause is this dev machine's local network silently dropping
+        Postgres's plaintext SSL-negotiation handshake (diagnosed earlier this
+        session; unrelated to this change — raw TLS and HTTPS both work fine
+        locally, only the Postgres wire protocol's SSLRequest step is affected).
+        Not a code regression: the same 32 non-DB tests still pass, `tsc`/`eslint`
+        are clean, and the real production build (run via Vercel, which doesn't
+        have this local restriction) succeeded cleanly with all 36 routes
+        generated. `.env`'s `DATABASE_URL` was also found pointing at a different,
+        seemingly-unrelated Neon project (eu-central-1) than the one actually
+        provisioned and deployed this project (`.env.local`, us-east-1) — left
+        untouched since its origin is unclear, but worth the user's attention;
+        local `npm test`/`vitest` won't work correctly until it's reconciled.

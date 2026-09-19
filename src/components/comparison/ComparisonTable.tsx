@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatSpecLabel, formatSpecValue, getSortedSpecKeys } from "@/lib/content/specifications";
 
 export interface ComparisonTableProduct {
   slug: string;
@@ -22,15 +23,7 @@ export interface ComparisonTableProduct {
 export function ComparisonTable({ products }: { products: ComparisonTableProduct[] }) {
   if (products.length === 0) return null;
 
-  // Sorted alphabetically rather than relying on object key order: Postgres's jsonb
-  // column does not preserve the original authoring order of a JSON object's keys
-  // (it reorders by key length, then alphabetically), so insertion order can't be
-  // relied on for a stable, predictable row order here.
-  const specKeys = Array.from(
-    new Set(
-      products.flatMap((p) => (p.specifications ? Object.keys(p.specifications) : []))
-    )
-  ).sort();
+  const specKeys = getSortedSpecKeys(products.map((p) => p.specifications));
 
   return (
     <div className="overflow-x-auto rounded-md border border-[var(--color-border)]">
@@ -130,18 +123,4 @@ export function ComparisonTable({ products }: { products: ComparisonTableProduct
       )}
     </div>
   );
-}
-
-function formatSpecLabel(key: string): string {
-  // camelCase -> Title Case With Spaces, e.g. "weightCapacityLbs" -> "Weight Capacity Lbs"
-  return key
-    .replace(/([A-Z])/g, " $1")
-    .replace(/^./, (c) => c.toUpperCase())
-    .trim();
-}
-
-function formatSpecValue(value: unknown): string {
-  if (value === null || value === undefined) return "—";
-  if (Array.isArray(value)) return value.join(" – ");
-  return String(value);
 }

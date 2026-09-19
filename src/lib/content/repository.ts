@@ -54,6 +54,39 @@ function isProductDataValid(specifications: unknown): boolean {
 
 // ---------- Products ----------
 
+/** The most common source name + most recent retrievedAt among a product's
+ *  SourceRecord rows that actually back a specification field (i.e. `field` matches a
+ *  key present in `specifications`) — never invented, and never counting unrelated
+ *  SourceRecords (e.g. an offer-URL fix) as if they verified the specs. Null when no
+ *  spec-backing SourceRecord exists yet. Some existing rows store `field` as a single
+ *  comma-separated list (e.g. "rangeDeerYds, weightOz, msrpUsd") rather than one row
+ *  per field — handled by splitting on "," rather than requiring an exact match. */
+function summarizeSpecSources(
+  specifications: unknown,
+  sourceRecords: { source: string; field: string; retrievedAt: Date }[]
+): { source: string; lastVerified: Date } | null {
+  const specKeys =
+    specifications && typeof specifications === "object" && !Array.isArray(specifications)
+      ? new Set(Object.keys(specifications as object))
+      : new Set<string>();
+
+  const relevant = sourceRecords.filter((r) =>
+    r.field.split(",").some((f) => specKeys.has(f.trim()))
+  );
+  if (relevant.length === 0) return null;
+
+  const counts = new Map<string, number>();
+  for (const r of relevant) counts.set(r.source, (counts.get(r.source) ?? 0) + 1);
+  const source = [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+
+  const lastVerified = relevant.reduce(
+    (latest, r) => (r.retrievedAt > latest ? r.retrievedAt : latest),
+    relevant[0].retrievedAt
+  );
+
+  return { source, lastVerified };
+}
+
 export interface ResolvedProduct {
   product: Product;
   category: Category | null;
@@ -61,17 +94,23 @@ export interface ResolvedProduct {
   gateResult: QualityGateResult;
   /** The strict viewer-facing decision — see module header. */
   isIndexable: boolean;
+  specSourceInfo: { source: string; lastVerified: Date } | null;
 }
 
 export async function getProductBySlug(slug: string): Promise<ResolvedProduct | null> {
   const product = await prisma.product.findUnique({
     where: { slug },
-    include: { category: true, offers: { include: { merchant: true } } },
+    include: {
+      category: true,
+      offers: { include: { merchant: true } },
+      sourceRecords: { select: { source: true, field: true, retrievedAt: true } },
+    },
   });
   if (!product) return null;
 
-  const { category, offers: rawOffers, ...productFields } = product;
+  const { category, offers: rawOffers, sourceRecords, ...productFields } = product;
   const offers = normalizeOffers(rawOffers);
+  const specSourceInfo = summarizeSpecSources(productFields.specifications, sourceRecords);
 
   const editorialSections: EditorialSection[] = [
     { name: "verdict", text: productFields.verdict, required: true },
@@ -98,6 +137,7 @@ export async function getProductBySlug(slug: string): Promise<ResolvedProduct | 
     offers,
     gateResult,
     isIndexable: product.seoStatus === "INDEXABLE",
+    specSourceInfo,
   };
 }
 
@@ -468,10 +508,24 @@ export interface SearchResult {
 }
 
 /**
+ * Matches when `q` (or its naive singular, stripping a trailing "s") appears as a
+ * substring of `text` — handles the common case of a plural query against singular
+ * product copy (e.g. query "binoculars" against shortDescription's "binocular")
+ * without pulling in a real stemmer/tokenizer for an MVP-scale search.
+ */
+function matchesQuery(text: string, q: string): boolean {
+  const lower = text.toLowerCase();
+  if (lower.includes(q)) return true;
+  if (q.length > 3 && q.endsWith("s") && lower.includes(q.slice(0, -1))) return true;
+  return false;
+}
+
+/**
  * MVP search per SEO_STRATEGY.md/master brief §27 allowance to use Postgres search at
- * MVP scale — this does a simple case-insensitive substring match over titles fetched
- * from the DB; swap for a real `tsvector` query if/when scale requires it. Only ever
- * returns INDEXABLE content — search results are a public surface too.
+ * MVP scale — this does a simple case-insensitive substring match over titles (and,
+ * for products, brand/shortDescription too — see matchesQuery) fetched from the DB;
+ * swap for a real `tsvector` query if/when scale requires it. Only ever returns
+ * INDEXABLE content — search results are a public surface too.
  */
 export async function searchContent(query: string): Promise<SearchResult[]> {
   const q = query.trim().toLowerCase();
@@ -487,7 +541,10 @@ export async function searchContent(query: string): Promise<SearchResult[]> {
   const results: SearchResult[] = [];
 
   for (const product of products) {
-    if (product.name.toLowerCase().includes(q)) {
+    const corpus = [product.name, product.brand, product.shortDescription]
+      .filter((v): v is string => Boolean(v))
+      .join(" ");
+    if (matchesQuery(corpus, q)) {
       results.push({
         type: "product",
         title: product.name,

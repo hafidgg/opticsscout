@@ -3,8 +3,6 @@ import type { Metadata } from "next";
 import { getComparisonBySlug, getAllComparisonSlugs } from "@/lib/content/repository";
 import { getLowestPrice } from "@/lib/content/pricing";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { buildBreadcrumbJsonLd } from "@/lib/seo/structured-data";
-import { JsonLd } from "@/components/seo/JsonLd";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ComparisonTable } from "@/components/comparison/ComparisonTable";
 import { AffiliateDisclosure } from "@/components/affiliate/AffiliateDisclosure";
@@ -54,6 +52,12 @@ export default async function ComparePage({ params }: PageProps) {
 
   const { comparison, products, productOffers } = resolved;
 
+  // No bestForLabel/"Top pick" badge here: this site's editorial methodology doesn't
+  // score or rank compared products, and declaring a winner not backed by a documented
+  // use-case conclusion would contradict comparison.verdict's own actual text (which is
+  // deliberately framed as "it depends" whenever that's the honest read of the specs —
+  // see e.g. the Diamondback/Monarch M5 verdict). The verdict prose below the table is
+  // the real, sourced conclusion; this table just lays out the specs it's based on.
   const tableProducts = products.map((product) => {
     const offers = productOffers[product.id] ?? [];
     const lowest = getLowestPrice(offers);
@@ -70,8 +74,6 @@ export default async function ComparePage({ params }: PageProps) {
     };
   });
 
-  if (tableProducts[0]) tableProducts[0].bestForLabel = "Top pick";
-
   const breadcrumbSegments = [
     { name: "Home", path: "/" },
     { name: "Compare", path: "/compare" },
@@ -80,7 +82,6 @@ export default async function ComparePage({ params }: PageProps) {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <JsonLd data={buildBreadcrumbJsonLd(breadcrumbSegments)} />
       <Breadcrumbs segments={breadcrumbSegments} />
 
       <h1 className="mt-4 font-serif text-3xl text-[var(--color-ink)]">

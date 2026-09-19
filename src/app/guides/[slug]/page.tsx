@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getGuideBySlug, getAllGuideSlugs, getProductBySlug } from "@/lib/content/repository";
 import { getLowestPrice } from "@/lib/content/pricing";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { buildArticleJsonLd, buildBreadcrumbJsonLd } from "@/lib/seo/structured-data";
+import { buildArticleJsonLd } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ProductCard, type ProductCardData } from "@/components/product/ProductCard";
@@ -91,7 +91,6 @@ export default async function GuidePage({ params }: PageProps) {
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <JsonLd data={articleJsonLd} />
-      <JsonLd data={buildBreadcrumbJsonLd(breadcrumbSegments)} />
       <Breadcrumbs segments={breadcrumbSegments} />
 
       <h1 className="mt-4 font-serif text-3xl text-[var(--color-ink)]">{guide.title}</h1>

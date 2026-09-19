@@ -8,6 +8,7 @@ import { buildProductJsonLd } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { WhereToBuy } from "@/components/product/WhereToBuy";
+import { ProductSpecifications } from "@/components/product/ProductSpecifications";
 import { AffiliateDisclosure } from "@/components/affiliate/AffiliateDisclosure";
 import { getRelatedLinksForProduct } from "@/lib/linking/internal-links";
 
@@ -73,7 +74,7 @@ export default async function ProductPage({ params }: PageProps) {
     notFound();
   }
 
-  const { product, category, offers } = resolved;
+  const { product, category, offers, specSourceInfo } = resolved;
   const lowest = getLowestPrice(offers);
 
   const relatedLinks = getRelatedLinksForProduct(
@@ -145,6 +146,11 @@ export default async function ProductPage({ params }: PageProps) {
           }))}
         />
       </div>
+
+      <ProductSpecifications
+        specifications={product.specifications as Record<string, unknown> | null}
+        sourceInfo={specSourceInfo}
+      />
 
       {(product.pros.length > 0 || product.cons.length > 0) && (
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">

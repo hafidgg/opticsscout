@@ -3,8 +3,6 @@ import type { Metadata } from "next";
 import { getBestPageBySlug, getAllBestPageSlugs } from "@/lib/content/repository";
 import { getLowestPrice } from "@/lib/content/pricing";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { buildBreadcrumbJsonLd } from "@/lib/seo/structured-data";
-import { JsonLd } from "@/components/seo/JsonLd";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ProductCard, type ProductCardData } from "@/components/product/ProductCard";
 import { AffiliateDisclosure } from "@/components/affiliate/AffiliateDisclosure";
@@ -77,21 +75,16 @@ export default async function BestPage({ params }: PageProps) {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <JsonLd data={buildBreadcrumbJsonLd(breadcrumbSegments)} />
       <Breadcrumbs segments={breadcrumbSegments} />
 
       <h1 className="mt-4 font-serif text-3xl text-[var(--color-ink)]">{bestPage.title}</h1>
 
+      {/* No "Top pick" badge on card position 0: `position` here is just the order
+          products were added in, not a scored/documented ranking — see bestPage.verdict
+          below for this page's actual, sourced conclusion. */}
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {cards.map((card, index) => (
-          <div key={card.slug} className="relative">
-            {index === 0 && (
-              <span className="absolute -top-2 left-3 z-10 rounded-full bg-[var(--color-ink)] px-2 py-0.5 text-xs font-medium text-white">
-                Top pick
-              </span>
-            )}
-            <ProductCard product={card} />
-          </div>
+        {cards.map((card) => (
+          <ProductCard key={card.slug} product={card} />
         ))}
       </div>
 
