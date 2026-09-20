@@ -95,6 +95,14 @@ export interface ResolvedProduct {
   /** The strict viewer-facing decision — see module header. */
   isIndexable: boolean;
   specSourceInfo: { source: string; lastVerified: Date } | null;
+  /** Other INDEXABLE products in the same category (real Category relation, not the
+   *  separate/unused Product.alternatives self-relation) — e.g. the Nikon Monarch M5
+   *  sibling for the Vortex Diamondback HD 8x42, both in Birding Optics. */
+  siblingProducts: Pick<Product, "slug" | "name">[];
+  /** The INDEXABLE comparison that includes this product, if one exists. At most one is
+   *  expected at current content scale (one comparison per sub-category, 2 products
+   *  each) — findFirst is intentional, not a shortcut around a real multi-match case. */
+  comparisonLink: { title: string; path: string } | null;
 }
 
 export async function getProductBySlug(slug: string): Promise<ResolvedProduct | null> {
@@ -111,6 +119,27 @@ export async function getProductBySlug(slug: string): Promise<ResolvedProduct | 
   const { category, offers: rawOffers, sourceRecords, ...productFields } = product;
   const offers = normalizeOffers(rawOffers);
   const specSourceInfo = summarizeSpecSources(productFields.specifications, sourceRecords);
+
+  const [siblingProducts, comparison] = await Promise.all([
+    productFields.categoryId
+      ? prisma.product.findMany({
+          where: {
+            categoryId: productFields.categoryId,
+            seoStatus: "INDEXABLE",
+            id: { not: productFields.id },
+          },
+          select: { slug: true, name: true },
+          orderBy: { name: "asc" },
+        })
+      : Promise.resolve([]),
+    prisma.comparison.findFirst({
+      where: { seoStatus: "INDEXABLE", products: { some: { productId: productFields.id } } },
+      select: { title: true, slug: true, canonicalPath: true },
+    }),
+  ]);
+  const comparisonLink = comparison
+    ? { title: comparison.title, path: comparison.canonicalPath ?? `/compare/${comparison.slug}` }
+    : null;
 
   const editorialSections: EditorialSection[] = [
     { name: "verdict", text: productFields.verdict, required: true },
@@ -138,6 +167,8 @@ export async function getProductBySlug(slug: string): Promise<ResolvedProduct | 
     gateResult,
     isIndexable: product.seoStatus === "INDEXABLE",
     specSourceInfo,
+    siblingProducts,
+    comparisonLink,
   };
 }
 
@@ -151,17 +182,51 @@ export async function getAllProductSlugs(): Promise<string[]> {
 export interface ResolvedCategory {
   category: Category;
   products: Product[];
+  /** Child categories (e.g. Birding Optics/Spotting Scopes/Rangefinders for the
+   *  Outdoor & Field Gear parent hub) — empty for a category with no children, which
+   *  is every current sub-category and the standalone Home Office ones. */
+  childCategories: Category[];
+  /** Other categories sharing this one's parent (e.g. Spotting Scopes and Rangefinders
+   *  when viewing Birding Optics) — empty for a top-level category or one with no
+   *  siblings. Used for a lightweight "explore other outdoor optics" cross-link. */
+  siblingCategories: Category[];
+  /** INDEXABLE comparisons whose categoryId is this category — real existing
+   *  Category.comparisons relation, previously fetched nowhere in the app. */
+  comparisons: { title: string; path: string }[];
 }
 
 export async function getCategoryBySlug(slug: string): Promise<ResolvedCategory | null> {
   const category = await prisma.category.findUnique({
     where: { slug },
-    include: { products: true },
+    include: { products: true, children: { orderBy: { name: "asc" } } },
   });
   if (!category) return null;
 
-  const { products, ...categoryFields } = category;
-  return { category: categoryFields, products };
+  const { products, children: childCategories, ...categoryFields } = category;
+
+  const [siblingCategories, comparisons] = await Promise.all([
+    categoryFields.parentId
+      ? prisma.category.findMany({
+          where: { parentId: categoryFields.parentId, id: { not: categoryFields.id } },
+          orderBy: { name: "asc" },
+        })
+      : Promise.resolve([]),
+    prisma.comparison.findMany({
+      where: { categoryId: categoryFields.id, seoStatus: "INDEXABLE" },
+      select: { title: true, slug: true, canonicalPath: true },
+    }),
+  ]);
+
+  return {
+    category: categoryFields,
+    products,
+    childCategories,
+    siblingCategories,
+    comparisons: comparisons.map((c) => ({
+      title: c.title,
+      path: c.canonicalPath ?? `/compare/${c.slug}`,
+    })),
+  };
 }
 
 export async function getAllCategorySlugs(): Promise<string[]> {

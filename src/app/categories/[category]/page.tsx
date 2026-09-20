@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getCategoryBySlug, getAllCategorySlugs, getProductBySlug } from "@/lib/content/repository";
 import { getLowestPrice } from "@/lib/content/pricing";
 import { buildMetadata } from "@/lib/seo/metadata";
@@ -57,7 +58,7 @@ export default async function CategoryPage({ params }: PageProps) {
     notFound();
   }
 
-  const { category, products } = resolved;
+  const { category, products, childCategories, siblingCategories, comparisons } = resolved;
 
   const indexableProducts = products.filter((p) => p.seoStatus === "INDEXABLE");
 
@@ -93,16 +94,73 @@ export default async function CategoryPage({ params }: PageProps) {
         <p className="mt-2 text-base text-[var(--color-muted)]">{category.description}</p>
       )}
 
-      {cards.length > 0 ? (
+      {childCategories.length > 0 && (
+        <div className="mt-8">
+          <h2 className="font-serif text-lg text-[var(--color-ink)]">Categories</h2>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {childCategories.map((child) => (
+              <Link
+                key={child.slug}
+                href={`/categories/${child.slug}`}
+                className="rounded-full border border-[var(--color-border)] px-4 py-1.5 text-sm text-[var(--color-ink)] hover:border-[var(--color-ink)]"
+              >
+                {child.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {cards.length > 0 && (
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {cards.map((card) => (
             <ProductCard key={card.slug} product={card} />
           ))}
         </div>
-      ) : (
+      )}
+
+      {cards.length === 0 && childCategories.length === 0 && (
         <p className="mt-8 text-sm text-[var(--color-muted)]">
           We&rsquo;re still building out coverage for this category — check back soon.
         </p>
+      )}
+
+      {comparisons.length > 0 && (
+        <div className="mt-10 border-t border-[var(--color-border)] pt-6">
+          <h2 className="font-serif text-lg text-[var(--color-ink)]">Comparisons</h2>
+          <ul className="mt-2 flex flex-wrap gap-3">
+            {comparisons.map((comparison) => (
+              <li key={comparison.path}>
+                <Link
+                  href={comparison.path}
+                  className="text-sm text-[var(--color-ink)] underline hover:text-[var(--color-accent)]"
+                >
+                  {comparison.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {siblingCategories.length > 0 && (
+        <div className="mt-10 border-t border-[var(--color-border)] pt-6">
+          <h2 className="font-serif text-lg text-[var(--color-ink)]">
+            Explore other outdoor optics
+          </h2>
+          <ul className="mt-2 flex flex-wrap gap-3">
+            {siblingCategories.map((sibling) => (
+              <li key={sibling.slug}>
+                <Link
+                  href={`/categories/${sibling.slug}`}
+                  className="text-sm text-[var(--color-ink)] underline hover:text-[var(--color-accent)]"
+                >
+                  {sibling.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </main>
   );

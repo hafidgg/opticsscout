@@ -74,13 +74,16 @@ export default async function ProductPage({ params }: PageProps) {
     notFound();
   }
 
-  const { product, category, offers, specSourceInfo } = resolved;
+  const { product, category, offers, specSourceInfo, siblingProducts, comparisonLink } =
+    resolved;
   const lowest = getLowestPrice(offers);
 
   const relatedLinks = getRelatedLinksForProduct(
     { ...product, alternativeSlugs: [], alternativeNames: [] },
     category?.name ?? null,
-    category?.slug ?? null
+    category?.slug ?? null,
+    siblingProducts,
+    comparisonLink
   );
 
   const productJsonLd = buildProductJsonLd({
