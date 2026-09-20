@@ -1,14 +1,33 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { AffiliateDisclosure } from "@/components/affiliate/AffiliateDisclosure";
 import { Hero } from "@/components/home/Hero";
 import { FeaturedComparisonsCarousel } from "@/components/home/FeaturedComparisonsCarousel";
 import type { FeaturedProductCardData } from "@/components/product/FeaturedProductCard";
 import { getLowestPrice } from "@/lib/content/pricing";
+import { buildMetadata } from "@/lib/seo/metadata";
 import {
   getFeaturedProducts,
   getHomepageCategories,
   getIndexableGuideSummaries,
 } from "@/lib/content/repository";
+
+/**
+ * Explicit self-referencing canonical for "/" — previously the homepage had no
+ * metadata export at all and relied entirely on the root layout's defaults, which
+ * don't include a canonical tag. Title/description here match the root layout's
+ * existing copy exactly (no content change), this just makes the canonical/OG/
+ * robots pipeline consistent with every other page instead of homepage being the
+ * one page missing an explicit <link rel="canonical">.
+ */
+export const metadata: Metadata = buildMetadata({
+  metaTitle: "OpticsScout — Find, Compare, Decide",
+  metaDescription:
+    "Independent, spec-driven comparisons and buying guides to help you decide what to buy.",
+  canonicalPath: "/",
+  seoStatus: "INDEXABLE",
+  fallbackTitle: "OpticsScout — Find, Compare, Decide",
+});
 
 /**
  * Homepage per master brief §23. Real content: category list, a featured-products

@@ -223,6 +223,7 @@ export interface ResolvedComparison {
   comparison: Awaited<ReturnType<typeof prisma.comparison.findUniqueOrThrow>>;
   products: Product[];
   productOffers: Record<string, ReturnType<typeof normalizeOffers>>;
+  category: Category | null;
   gateResult: QualityGateResult;
   isIndexable: boolean;
 }
@@ -231,6 +232,7 @@ export async function getComparisonBySlug(slug: string): Promise<ResolvedCompari
   const comparison = await prisma.comparison.findUnique({
     where: { slug },
     include: {
+      category: true,
       products: {
         orderBy: { position: "asc" },
         include: { product: { include: { offers: { include: { merchant: true } } } } },
@@ -239,7 +241,7 @@ export async function getComparisonBySlug(slug: string): Promise<ResolvedCompari
   });
   if (!comparison) return null;
 
-  const { products: productLinks, ...comparisonFields } = comparison;
+  const { products: productLinks, category, ...comparisonFields } = comparison;
   const products = productLinks.map((link) => link.product);
   const productOffers = Object.fromEntries(
     productLinks.map((link) => [link.productId, normalizeOffers(link.product.offers)])
@@ -283,6 +285,7 @@ export async function getComparisonBySlug(slug: string): Promise<ResolvedCompari
     comparison: comparisonFields,
     products,
     productOffers,
+    category,
     gateResult,
     isIndexable: comparison.seoStatus === "INDEXABLE",
   };

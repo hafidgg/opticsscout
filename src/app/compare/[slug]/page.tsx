@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getComparisonBySlug, getAllComparisonSlugs } from "@/lib/content/repository";
 import { getLowestPrice } from "@/lib/content/pricing";
 import { buildMetadata } from "@/lib/seo/metadata";
@@ -50,7 +51,7 @@ export default async function ComparePage({ params }: PageProps) {
     notFound();
   }
 
-  const { comparison, products, productOffers } = resolved;
+  const { comparison, products, productOffers, category } = resolved;
 
   // No bestForLabel/"Top pick" badge here: this site's editorial methodology doesn't
   // score or rank compared products, and declaring a winner not backed by a documented
@@ -74,9 +75,16 @@ export default async function ComparePage({ params }: PageProps) {
     };
   });
 
+  // "/compare" (no slug) isn't a real route — there's no comparison index page, only
+  // per-comparison pages — so the middle breadcrumb segment links to the comparison's
+  // real category instead of a 404. Falls back to skipping that segment entirely if a
+  // comparison somehow has no category (shouldn't happen for real content, but never
+  // link to a route we haven't confirmed exists).
   const breadcrumbSegments = [
     { name: "Home", path: "/" },
-    { name: "Compare", path: "/compare" },
+    ...(category
+      ? [{ name: category.name, path: `/categories/${category.slug}` }]
+      : []),
     { name: comparison.title, path: comparison.canonicalPath ?? `/compare/${comparison.slug}` },
   ];
 
@@ -96,6 +104,22 @@ export default async function ComparePage({ params }: PageProps) {
         <div className="mt-8 rounded-md border border-[var(--color-border)] bg-[var(--color-paper-raised)] p-4">
           <h2 className="font-serif text-lg text-[var(--color-ink)]">Verdict</h2>
           <p className="mt-2 text-sm text-[var(--color-ink)]">{comparison.verdict}</p>
+        </div>
+      )}
+
+      {category && (
+        <div className="mt-10 border-t border-[var(--color-border)] pt-6">
+          <h2 className="font-serif text-lg text-[var(--color-ink)]">Related</h2>
+          <ul className="mt-2 flex flex-wrap gap-3">
+            <li>
+              <Link
+                href={`/categories/${category.slug}`}
+                className="text-sm text-[var(--color-ink)] underline hover:text-[var(--color-accent)]"
+              >
+                {category.name}
+              </Link>
+            </li>
+          </ul>
         </div>
       )}
 
