@@ -628,3 +628,66 @@ promoting anything to INDEXABLE.
         provisioned and deployed this project (`.env.local`, us-east-1) — left
         untouched since its origin is unclear, but worth the user's attention;
         local `npm test`/`vitest` won't work correctly until it's reconciled.
+
+- [x] `PASS` — Final pre-launch audit (2026-09-20), after the Vercel project
+      rename to "opticsscout". Confirmed `isOnFinalDomain()` is unaffected by the
+      rename (it gates purely on `NEXT_PUBLIC_SITE_URL`'s hostname, nothing
+      project-name-related) and still correctly forces noindex on both
+      `opticsscout.vercel.app` and the legacy `product-discovery-platform-theta.vercel.app`.
+      Confirmed production `DATABASE_URL` resolves to the correct, seeded Neon
+      project (`curly-fire-18383027` — cross-checked via `vercel env pull
+      --environment=production` and a live count query: 7 INDEXABLE products, 3
+      INDEXABLE comparisons, matches expectations). Two real, small fixes:
+      - Homepage (`src/app/page.tsx`) had no `generateMetadata`/`metadata` export
+        at all — no `<link rel="canonical">`, no OG/Twitter tags. Added one via
+        `buildMetadata()` (title/description copied verbatim from the root
+        layout's existing defaults — no copy change).
+      - Every comparison page's breadcrumb linked to `/compare` (no slug) as its
+        middle segment — that route doesn't exist (only `/compare/[slug]` does),
+        so it 404'd on all 3 live comparison pages. Fixed by linking to the
+        comparison's real category instead (`getComparisonBySlug()` now also
+        returns `category`), plus added a "Related" category link at the bottom
+        of the page, closing the "comparison pages should link to their
+        category" gap.
+      - **Found, NOT fixed at the time — flagged for manual review, per the
+        no-fabrication rule**: `alpha-electric-standing-desk-48in` (Home Office
+        backup niche, then `seoStatus: INDEXABLE`, a live public page) had two
+        dead affiliate offers — `amazon.com/example-alpha-standing-desk` (404)
+        and `ebay.com/example-alpha-standing-desk` (redirects to eBay's own
+        `/n/error` page). These were placeholder URLs from the original mock
+        dataset that predates the OpticsScout content, not something introduced
+        that session. The click-redirect route itself worked correctly (302s to
+        exactly what's stored) — this was a data problem, not a code bug.
+
+- [x] `PASS` — **Resolved per the user's decision (2026-09-20)**: deleted
+      `product_standing_desk_alpha` permanently rather than sourcing replacement
+      links, since it's leftover pre-OpticsScout mock data with nothing real
+      behind it. Checked every reference first: cascaded cleanly via existing
+      `onDelete: Cascade` relations (2 `ProductOffer` rows, 1 `ClickEvent`, its
+      `alternatives` self-relation row with Beta) — nothing needed manual
+      cleanup there. Two records needed a deliberate decision beyond a plain
+      cascade:
+      - `comparison_alpha_vs_beta` (status `REVIEW`, never live) referenced
+        Alpha as one of exactly 2 compared products — a "vs" comparison can't
+        exist with one side gone, so this comparison was deleted outright, not
+        just decoupled.
+      - `guide_best_standing_desks` (`READY`, never live) and
+        `best_standing_desks_under_500` (`DRAFT`, never live) both list Alpha as
+        a product (join rows cascade-deleted automatically) **and their written
+        verdict/content prose explicitly names Alpha as the recommended pick**
+        ("we picked the Alpha Electric Standing Desk as the steadiest option...").
+        That prose was deliberately left untouched — rewriting editorial content
+        wasn't part of what was asked, and doing so without real product
+        knowledge would risk inventing a replacement recommendation. **Both
+        records still need manual editorial review (the prose needs rewriting to
+        drop the Alpha reference) before either is ever promoted to
+        `INDEXABLE`** — neither is currently live, so there's no live-site
+        impact today, but this is a real gap if either gets promoted as-is.
+      Verified after a fresh deploy: sitemap dropped from 23 → 21 entries (-1 for
+      the deleted product, -1 for `/categories/desks`, which now has zero
+      `INDEXABLE` products left and is correctly excluded by
+      `getIndexableCategoryPaths()`'s existing ≥1-product rule — no code change
+      needed for that, it's exactly the filter working as designed).
+      `/products/alpha-electric-standing-desk-48in` now correctly 404s via the
+      custom not-found page; `/categories/desks` renders its existing graceful
+      empty state ("still building out coverage").
