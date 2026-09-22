@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatSpecLabel, formatSpecValue, getSortedSpecKeys } from "@/lib/content/specifications";
+import { AffiliateButton } from "@/components/affiliate/AffiliateButton";
 
 export interface ComparisonTableProduct {
   slug: string;
@@ -12,6 +13,14 @@ export interface ComparisonTableProduct {
   pros: string[];
   cons: string[];
   bestForLabel: string | null;
+  /** Needed to build the CTA below — omit (or leave `cta` null) for a caller that
+   *  doesn't have offer data, e.g. a future non-product comparison. */
+  productId?: string;
+  /** The product's lowest-priced ACTIVE offer, already resolved by the caller (this
+   *  component never queries — see repository.ts's ACTIVE_OFFER_FILTER). Null when
+   *  the product currently has no active offer; the CTA cell is simply omitted, never
+   *  a fake/disabled button. */
+  cta?: { merchantId: string; merchantName: string } | null;
 }
 
 /**
@@ -20,7 +29,17 @@ export interface ComparisonTableProduct {
  * to one product still gets its own row rather than being silently dropped; a
  * product missing that key shows "—", never a guessed value (Section 30/37).
  */
-export function ComparisonTable({ products }: { products: ComparisonTableProduct[] }) {
+export function ComparisonTable({
+  products,
+  page,
+}: {
+  products: ComparisonTableProduct[];
+  /** Path of the page this table renders on, passed through to the CTA's click
+   *  tracking (same "page" concept WhereToBuy already uses) — e.g. "/compare/
+   *  vortex-diamondback-hd-8x42-vs-nikon-monarch-m5-8x42". Optional so this
+   *  component still works for a caller with no CTA offers (page is unused then). */
+  page?: string;
+}) {
   if (products.length === 0) return null;
 
   const specKeys = getSortedSpecKeys(products.map((p) => p.specifications));
@@ -73,6 +92,27 @@ export function ComparisonTable({ products }: { products: ComparisonTableProduct
               </td>
             ))}
           </tr>
+
+          {products.some((p) => p.cta) && (
+            <tr className="border-b border-[var(--color-border)]">
+              <td className="p-3 text-[var(--color-muted)]">Where to buy</td>
+              {products.map((product) => (
+                <td key={product.slug} className="p-3">
+                  {product.cta && product.productId ? (
+                    <AffiliateButton
+                      productId={product.productId}
+                      merchantId={product.cta.merchantId}
+                      merchantName={product.cta.merchantName}
+                      page={page ?? "unknown"}
+                      placement="comparison-table-row"
+                    />
+                  ) : (
+                    "—"
+                  )}
+                </td>
+              ))}
+            </tr>
+          )}
 
           {specKeys.map((key) => (
             <tr key={key} className="border-b border-[var(--color-border)]">

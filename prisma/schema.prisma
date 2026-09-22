@@ -25,6 +25,7 @@ enum AffiliateNetwork {
   EBAY
   ETSY
   AWIN
+  AVANTLINK
   IMPACT
   CJ
   ENVATO
@@ -160,6 +161,14 @@ model ProductOffer {
   availability AvailabilityStatus @default(UNKNOWN)
   lastChecked  DateTime?
 
+  // Per-offer visibility toggle — independent of Merchant.active (an account-level
+  // switch) and of `availability` (a stock-status signal). This is what lets a real
+  // row be staged for a merchant/network application that hasn't been approved yet
+  // (see docs/AFFILIATE_MARKETING.md): insert the row with active: false so nothing
+  // public ever renders or redirects to it, then flip to true once approved with a
+  // real URL. Defaults true so existing/normal offers are unaffected.
+  active Boolean @default(true)
+
   // Campaign/placement metadata only — no PII (Section 18).
   trackingMetadata Json?
 
@@ -168,6 +177,7 @@ model ProductOffer {
 
   @@unique([productId, merchantId])
   @@index([merchantId])
+  @@index([productId, active])
 }
 
 // ---------- Editorial content ----------

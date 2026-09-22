@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getComparisonBySlug, getAllComparisonSlugs } from "@/lib/content/repository";
-import { getLowestPrice } from "@/lib/content/pricing";
+import { getLowestPrice, getLowestOffer } from "@/lib/content/pricing";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ComparisonTable } from "@/components/comparison/ComparisonTable";
@@ -62,6 +62,9 @@ export default async function ComparePage({ params }: PageProps) {
   const tableProducts = products.map((product) => {
     const offers = productOffers[product.id] ?? [];
     const lowest = getLowestPrice(offers);
+    // Offers here are already active-only (ACTIVE_OFFER_FILTER, applied inside
+    // getComparisonBySlug) — no further filtering needed before building a CTA.
+    const ctaOffer = getLowestOffer(offers);
     return {
       slug: product.slug,
       name: product.name,
@@ -72,6 +75,10 @@ export default async function ComparePage({ params }: PageProps) {
       pros: product.pros,
       cons: product.cons,
       bestForLabel: null as string | null,
+      productId: product.id,
+      cta: ctaOffer
+        ? { merchantId: ctaOffer.merchantId, merchantName: ctaOffer.merchant.name }
+        : null,
     };
   });
 
@@ -97,7 +104,10 @@ export default async function ComparePage({ params }: PageProps) {
       </h1>
 
       <div className="mt-8">
-        <ComparisonTable products={tableProducts} />
+        <ComparisonTable
+          products={tableProducts}
+          page={comparison.canonicalPath ?? `/compare/${comparison.slug}`}
+        />
       </div>
 
       {comparison.verdict && (

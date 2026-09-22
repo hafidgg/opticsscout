@@ -9,6 +9,17 @@ import { prisma } from "@/lib/db/client";
  * Resolves the ProductOffer + Merchant, builds the affiliate URL via the central
  * service, records a first-party ClickEvent (no PII — see Section 18), then 302s to
  * the resolved URL.
+ *
+ * Open-redirect safety: `productId`/`merchantId` are used ONLY as a lookup key into
+ * ProductOffer via its (productId, merchantId) unique constraint — the redirect
+ * destination always comes from that DB row's own `url`/`affiliateUrl`, never from any
+ * request-supplied value. There is no way to make this route redirect anywhere other
+ * than a URL a site operator has actually stored.
+ *
+ * Inactive-offer safety: an offer or merchant with `active: false` 404s here exactly
+ * like a nonexistent one — a stale/shared link to a since-disabled offer never
+ * produces a working redirect, matching what the public pages already refuse to
+ * render (see ACTIVE_OFFER_FILTER in lib/content/repository.ts).
  */
 
 function getOrCreateSessionId(request: NextRequest): string {
@@ -30,7 +41,7 @@ export async function GET(
     prisma.merchant.findUnique({ where: { id: merchantId } }),
   ]);
 
-  if (!offer || !merchant) {
+  if (!offer || !merchant || !offer.active || !merchant.active) {
     return NextResponse.json(
       { error: "Offer or merchant not found" },
       { status: 404 }
@@ -45,9 +56,15 @@ export async function GET(
     placement
   );
 
-  await prisma.clickEvent.create({
-    data: { productId, merchantId, page, placement, sessionId },
-  });
+  // Never let a tracking failure block the redirect — the user reaching the merchant
+  // matters more than one lost click record. Errors are swallowed, not surfaced.
+  try {
+    await prisma.clickEvent.create({
+      data: { productId, merchantId, page, placement, sessionId },
+    });
+  } catch (error) {
+    console.error("Failed to record ClickEvent (navigation proceeds regardless):", error);
+  }
 
   const response = NextResponse.redirect(url, { status: 302 });
 

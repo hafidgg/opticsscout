@@ -32,6 +32,21 @@ import { findOverlappingIntent } from "@/lib/seo/duplicate-detection";
 
 type OfferWithMerchant = ProductOffer & { merchant: Merchant };
 
+/**
+ * The single definition of "publicly visible offer" — active on both the offer
+ * itself and its merchant. Every place that fetches offers for public rendering
+ * (product pages, comparisons, guides, best pages, the homepage carousel, and the
+ * affiliate offer service below) uses this same filter, so "inactive offers never
+ * render" is true by construction rather than by convention.
+ */
+const ACTIVE_OFFER_FILTER = {
+  active: true,
+  merchant: { active: true },
+  // Defensive: a row with an empty/blank url is never a valid, clickable CTA — treat
+  // it the same as an inactive offer rather than rendering a dead link.
+  url: { not: "" },
+} as const;
+
 /** Decimal -> plain number for display/JSON-LD; null stays null. */
 function toNumber(value: ProductOffer["price"]): number | null {
   return value === null ? null : value.toNumber();
@@ -110,7 +125,7 @@ export async function getProductBySlug(slug: string): Promise<ResolvedProduct | 
     where: { slug },
     include: {
       category: true,
-      offers: { include: { merchant: true } },
+      offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true } },
       sourceRecords: { select: { source: true, field: true, retrievedAt: true } },
     },
   });
@@ -175,6 +190,48 @@ export async function getProductBySlug(slug: string): Promise<ResolvedProduct | 
 export async function getAllProductSlugs(): Promise<string[]> {
   const rows = await prisma.product.findMany({ select: { slug: true } });
   return rows.map((r) => r.slug);
+}
+
+// ---------- Affiliate Offers ----------
+//
+// Small, focused fetch points for offer data specifically — distinct from
+// getProductBySlug() above (which already returns active-only offers as part of a
+// full product page load). These exist for callers that need offer data without
+// pulling a whole product record, and to give the "active vs. all" distinction a
+// single, explicit, reusable home rather than every caller re-deriving it.
+
+/** Every offer for a product, active or not — e.g. for an eventual admin/audit view.
+ *  Never used for public rendering; use getActiveAffiliateOffers() for that. */
+export async function getAffiliateOffers(productId: string) {
+  const offers = await prisma.productOffer.findMany({
+    where: { productId },
+    include: { merchant: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return normalizeOffers(offers);
+}
+
+/** Only offers safe to show publicly — same ACTIVE_OFFER_FILTER every public page
+ *  query uses. This is what WhereToBuy/ComparisonTable/JSON-LD should be fed. */
+export async function getActiveAffiliateOffers(productId: string) {
+  const offers = await prisma.productOffer.findMany({
+    where: { productId, ...ACTIVE_OFFER_FILTER },
+    include: { merchant: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return normalizeOffers(offers);
+}
+
+/** A single product's offer from one specific merchant (by Merchant.slug, e.g.
+ *  "amazon" — the stable, human-meaningful identifier, not the internal cuid id).
+ *  Returns null if that product has no offer from that merchant, or it isn't
+ *  currently active. */
+export async function getAffiliateOfferByMerchant(productId: string, merchantSlug: string) {
+  const offer = await prisma.productOffer.findFirst({
+    where: { productId, ...ACTIVE_OFFER_FILTER, merchant: { slug: merchantSlug, active: true } },
+    include: { merchant: true },
+  });
+  return offer ? normalizeOffers([offer])[0] : null;
 }
 
 // ---------- Categories ----------
@@ -267,7 +324,7 @@ export async function getHomepageCategories(): Promise<Category[]> {
 export async function getFeaturedProducts(limit = 8) {
   const products = await prisma.product.findMany({
     where: { seoStatus: "INDEXABLE", category: { parentId: { not: null } } },
-    include: { category: true, offers: { include: { merchant: true } } },
+    include: { category: true, offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true } } },
     orderBy: { updatedAt: "desc" },
     take: limit,
   });
@@ -300,7 +357,7 @@ export async function getComparisonBySlug(slug: string): Promise<ResolvedCompari
       category: true,
       products: {
         orderBy: { position: "asc" },
-        include: { product: { include: { offers: { include: { merchant: true } } } } },
+        include: { product: { include: { offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true } } } } },
       },
     },
   });
@@ -378,7 +435,7 @@ export async function getGuideBySlug(slug: string): Promise<ResolvedGuide | null
       category: true,
       products: {
         orderBy: { position: "asc" },
-        include: { product: { include: { offers: { include: { merchant: true } } } } },
+        include: { product: { include: { offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true } } } } },
       },
     },
   });
@@ -506,7 +563,7 @@ export async function getBestPageBySlug(slug: string): Promise<ResolvedBestPage 
     include: {
       products: {
         orderBy: { position: "asc" },
-        include: { product: { include: { offers: { include: { merchant: true } } } } },
+        include: { product: { include: { offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true } } } } },
       },
     },
   });

@@ -36,7 +36,7 @@ export function AffiliateButton({
   return (
     <a
       href={href}
-      rel="sponsored noopener noreferrer"
+      rel="sponsored nofollow noopener noreferrer"
       target="_blank"
       className="inline-flex items-center justify-between gap-3 rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm transition hover:border-neutral-400 hover:shadow"
     >
