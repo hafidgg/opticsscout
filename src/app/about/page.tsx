@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildMetadata({
-  metaTitle: "About OpticsScout",
+  // "About" not "About OpticsScout" — the root layout's title template ("%s | OpticsScout")
+  // already appends the site name, so the old value rendered as the duplicated
+  // "About OpticsScout | OpticsScout". Every other trust page's metaTitle already
+  // omits the site name for the same reason (e.g. "Contact", "Privacy Policy").
+  metaTitle: "About",
   metaDescription:
     "OpticsScout helps you compare birding optics and outdoor field gear using sourced manufacturer specifications and retailer data.",
   canonicalPath: "/about",
   seoStatus: "INDEXABLE",
-  fallbackTitle: "About OpticsScout",
+  fallbackTitle: "About",
 });
 
 export default function AboutPage() {

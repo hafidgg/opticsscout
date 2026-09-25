@@ -76,6 +76,68 @@ describe("buildProductJsonLd", () => {
       },
     ]);
   });
+
+  it("omits availability entirely for UNKNOWN rather than asserting a specific value", () => {
+    // Previously mapped to schema.org/InStoreOnly, which is factually wrong for an
+    // online-only offer — Google's own guidance is to omit rather than guess.
+    const node = buildProductJsonLd({
+      product: { ...baseProduct, rating: null, reviewCount: null },
+      offers: [
+        {
+          price: 399,
+          currency: "USD",
+          availability: "UNKNOWN",
+          url: "https://example.com/offer",
+          merchant: { name: "Amazon" },
+        },
+      ],
+    });
+    const offers = node.offers as Array<{ availability?: string }>;
+    expect(offers[0].availability).toBeUndefined();
+  });
+
+  it("excludes an offer with no verified price from structured data entirely", () => {
+    // A priceless Offer isn't a valid schema.org Offer — never emitted as one, same
+    // rule as the real Nikon Monarch M5 case (no sourced price at all).
+    const node = buildProductJsonLd({
+      product: { ...baseProduct, rating: null, reviewCount: null },
+      offers: [
+        {
+          price: null,
+          currency: "USD",
+          availability: "UNKNOWN",
+          url: "https://example.com/no-price-offer",
+          merchant: { name: "Amazon" },
+        },
+      ],
+    });
+    expect(node.offers).toBeUndefined();
+  });
+
+  it("still emits priced offers when mixed with an unpriced one", () => {
+    const node = buildProductJsonLd({
+      product: { ...baseProduct, rating: null, reviewCount: null },
+      offers: [
+        {
+          price: null,
+          currency: "USD",
+          availability: "UNKNOWN",
+          url: "https://example.com/no-price-offer",
+          merchant: { name: "NoPriceMerchant" },
+        },
+        {
+          price: 249,
+          currency: "USD",
+          availability: "IN_STOCK",
+          url: "https://example.com/priced-offer",
+          merchant: { name: "Amazon" },
+        },
+      ],
+    });
+    const offers = node.offers as Array<{ price: number }>;
+    expect(offers).toHaveLength(1);
+    expect(offers[0].price).toBe(249);
+  });
 });
 
 describe("buildBreadcrumbJsonLd", () => {

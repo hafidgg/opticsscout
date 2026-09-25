@@ -34,12 +34,15 @@ export interface JsonLdProductInput {
   })[];
 }
 
-const availabilityMap: Record<string, string> = {
+const availabilityMap: Record<string, string | undefined> = {
   IN_STOCK: "https://schema.org/InStock",
   OUT_OF_STOCK: "https://schema.org/OutOfStock",
   DISCONTINUED: "https://schema.org/Discontinued",
-  UNKNOWN: "https://schema.org/InStoreOnly", // closest neutral schema.org value; never
-  // fabricated as InStock when we genuinely don't know.
+  // No UNKNOWN entry — Google's own structured-data guidance is to omit `availability`
+  // entirely when it's genuinely not known, rather than assert a specific value.
+  // This used to map to "https://schema.org/InStoreOnly", which is factually wrong
+  // for every offer we have (none are in-person/physical-store purchases) — found
+  // during the 2026-09 SEO structured-data audit.
 };
 
 /**
@@ -60,10 +63,17 @@ export function buildProductJsonLd(input: JsonLdProductInput) {
     url: `${siteUrl}${product.canonicalPath ?? `/products/${product.slug}`}`,
   };
 
-  if (offers.length > 0) {
-    node.offers = offers.map((offer) => ({
+  // schema.org/Google requires a valid Offer to have a price — an offer with no
+  // verified price (e.g. the Nikon Monarch M5, which has no sourced price at all)
+  // can't honestly satisfy that, so it's left out of structured data entirely rather
+  // than emitted as an incomplete/invalid Offer node. Found during the 2026-09 SEO
+  // structured-data audit — WhereToBuy already handles a priceless offer gracefully
+  // on the visible page; this just brings the JSON-LD in line with the same rule.
+  const pricedOffers = offers.filter((offer) => offer.price !== null);
+  if (pricedOffers.length > 0) {
+    node.offers = pricedOffers.map((offer) => ({
       "@type": "Offer",
-      price: offer.price ?? undefined,
+      price: offer.price,
       priceCurrency: offer.currency,
       availability: availabilityMap[offer.availability],
       url: offer.url,
@@ -148,5 +158,42 @@ export function buildFaqJsonLd(items: FaqItem[]) {
         text: item.answer,
       },
     })),
+  };
+}
+
+/**
+ * Site-wide Organization + WebSite schema, rendered once in the root layout — every
+ * other JSON-LD builder here is per-page content; this one is the entity/brand-level
+ * schema Google generally expects a real site to carry regardless of what page it's
+ * on. Deliberately minimal and 100% real: just the actual name and URL, no `logo`
+ * (no real logo image exists yet — omitted rather than pointing at a placeholder) and
+ * no `sameAs` social links (none exist yet either). The `SearchAction` is genuine:
+ * `/search?q={query}` is a real, working search route.
+ */
+export function buildOrganizationJsonLd() {
+  const siteUrl = getSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "OpticsScout",
+    url: siteUrl,
+  };
+}
+
+export function buildWebSiteJsonLd() {
+  const siteUrl = getSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "OpticsScout",
+    url: siteUrl,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${siteUrl}/search?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
   };
 }

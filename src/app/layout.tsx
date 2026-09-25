@@ -3,6 +3,8 @@ import "./globals.css";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { isOnFinalDomain } from "@/lib/seo/metadata";
+import { buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/lib/seo/structured-data";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 /**
  * Site-wide default robots directive. Routes that call buildMetadata() (see
@@ -27,6 +29,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col font-sans">
+        <JsonLd data={buildOrganizationJsonLd()} />
+        <JsonLd data={buildWebSiteJsonLd()} />
         <SiteHeader />
         {children}
         <SiteFooter />
