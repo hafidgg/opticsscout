@@ -250,6 +250,9 @@ export interface ResolvedCategory {
   /** INDEXABLE comparisons whose categoryId is this category — real existing
    *  Category.comparisons relation, previously fetched nowhere in the app. */
   comparisons: { title: string; path: string }[];
+  /** INDEXABLE "/best/" pages whose categoryId is this category — same idea as
+   *  comparisons above, via the existing Category.bestPages relation. */
+  bestPages: { title: string; path: string }[];
 }
 
 export async function getCategoryBySlug(slug: string): Promise<ResolvedCategory | null> {
@@ -261,7 +264,7 @@ export async function getCategoryBySlug(slug: string): Promise<ResolvedCategory 
 
   const { products, children: childCategories, ...categoryFields } = category;
 
-  const [siblingCategories, comparisons] = await Promise.all([
+  const [siblingCategories, comparisons, bestPages] = await Promise.all([
     categoryFields.parentId
       ? prisma.category.findMany({
           where: { parentId: categoryFields.parentId, id: { not: categoryFields.id } },
@@ -269,6 +272,13 @@ export async function getCategoryBySlug(slug: string): Promise<ResolvedCategory 
         })
       : Promise.resolve([]),
     prisma.comparison.findMany({
+      where: { categoryId: categoryFields.id, seoStatus: "INDEXABLE" },
+      select: { title: true, slug: true, canonicalPath: true },
+    }),
+    // Same INDEXABLE-only rule as comparisons above — a DRAFT BestPage (like the new
+    // "Best Spotting Scopes" page while it's under review) simply doesn't appear here
+    // yet. No extra check needed once it's promoted; this query already covers it.
+    prisma.bestPage.findMany({
       where: { categoryId: categoryFields.id, seoStatus: "INDEXABLE" },
       select: { title: true, slug: true, canonicalPath: true },
     }),
@@ -282,6 +292,10 @@ export async function getCategoryBySlug(slug: string): Promise<ResolvedCategory 
     comparisons: comparisons.map((c) => ({
       title: c.title,
       path: c.canonicalPath ?? `/compare/${c.slug}`,
+    })),
+    bestPages: bestPages.map((b) => ({
+      title: b.title,
+      path: b.canonicalPath ?? `/best/${b.slug}`,
     })),
   };
 }
@@ -553,6 +567,7 @@ export interface ResolvedBestPage {
   bestPage: Awaited<ReturnType<typeof prisma.bestPage.findUniqueOrThrow>>;
   products: Product[];
   productOffers: Record<string, ReturnType<typeof normalizeOffers>>;
+  category: Category | null;
   gateResult: QualityGateResult;
   isIndexable: boolean;
 }
@@ -561,6 +576,7 @@ export async function getBestPageBySlug(slug: string): Promise<ResolvedBestPage 
   const bestPage = await prisma.bestPage.findUnique({
     where: { slug },
     include: {
+      category: true,
       products: {
         orderBy: { position: "asc" },
         include: { product: { include: { offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true } } } } },
@@ -569,7 +585,7 @@ export async function getBestPageBySlug(slug: string): Promise<ResolvedBestPage 
   });
   if (!bestPage) return null;
 
-  const { products: productLinks, ...bestPageFields } = bestPage;
+  const { products: productLinks, category, ...bestPageFields } = bestPage;
   const products = productLinks.map((link) => link.product);
   const productOffers = Object.fromEntries(
     productLinks.map((link) => [link.productId, normalizeOffers(link.product.offers)])
@@ -613,6 +629,7 @@ export async function getBestPageBySlug(slug: string): Promise<ResolvedBestPage 
     bestPage: bestPageFields,
     products,
     productOffers,
+    category,
     gateResult,
     isIndexable: bestPage.seoStatus === "INDEXABLE",
   };

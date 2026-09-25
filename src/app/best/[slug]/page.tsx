@@ -5,6 +5,7 @@ import { getLowestPrice } from "@/lib/content/pricing";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ProductCard, type ProductCardData } from "@/components/product/ProductCard";
+import { WhereToBuy } from "@/components/product/WhereToBuy";
 import { AffiliateDisclosure } from "@/components/affiliate/AffiliateDisclosure";
 
 /** Same required pipeline as the product page — see that file's header comment. */
@@ -50,12 +51,12 @@ export default async function BestPage({ params }: PageProps) {
     notFound();
   }
 
-  const { bestPage, products, productOffers } = resolved;
+  const { bestPage, products, productOffers, category } = resolved;
 
-  const cards: ProductCardData[] = products.map((product) => {
+  const entries = products.map((product) => {
     const offers = productOffers[product.id] ?? [];
     const lowest = getLowestPrice(offers);
-    return {
+    const card: ProductCardData = {
       slug: product.slug,
       name: product.name,
       shortDescription: product.shortDescription,
@@ -66,10 +67,14 @@ export default async function BestPage({ params }: PageProps) {
       merchantCount: offers.length,
       categoryLabel: null,
     };
+    return { productId: product.id, card, offers };
   });
 
   const breadcrumbSegments = [
     { name: "Home", path: "/" },
+    ...(category
+      ? [{ name: category.name, path: `/categories/${category.slug}` }]
+      : []),
     { name: bestPage.title, path: bestPage.canonicalPath ?? `/best/${bestPage.slug}` },
   ];
 
@@ -83,8 +88,26 @@ export default async function BestPage({ params }: PageProps) {
           products were added in, not a scored/documented ranking — see bestPage.verdict
           below for this page's actual, sourced conclusion. */}
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {cards.map((card) => (
-          <ProductCard key={card.slug} product={card} />
+        {entries.map(({ productId, card, offers }) => (
+          // WhereToBuy renders its own <a> CTAs — kept as a sibling of ProductCard
+          // (itself one big <Link>), never nested inside it, to avoid an invalid
+          // nested-anchor DOM.
+          <div key={card.slug} className="flex flex-col gap-3">
+            <ProductCard product={card} />
+            <WhereToBuy
+              productId={productId}
+              page={bestPage.canonicalPath ?? `/best/${bestPage.slug}`}
+              offers={offers.map((o) => ({
+                id: o.id,
+                merchantId: o.merchantId,
+                merchantName: o.merchant.name,
+                price: o.price,
+                currency: o.currency,
+                isMsrp: o.isMsrp,
+                availability: o.availability,
+              }))}
+            />
+          </div>
         ))}
       </div>
 
