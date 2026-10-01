@@ -12,7 +12,8 @@
  * own page text the way the other specs are — SourceRecord confidence is MEDIUM
  * for that one field specifically, HIGH for everything else on this product.
  *
- * Idempotent: every upsert's `update` mirrors its `create`.
+ * Idempotent: every upsert's `update` mirrors its `create`, except seoStatus, which
+ * is create-only (see withoutSeoStatus below) so a re-run never changes indexability.
  *
  * Run: npx tsx scripts/content-batch-2-scopes-and-rangefinders.ts
  */
@@ -23,6 +24,17 @@ import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg(process.env.DATABASE_URL as string);
 const prisma = new PrismaClient({ adapter });
+
+// seoStatus is written on CREATE only — a brand-new row starts as DRAFT — and is
+// deliberately stripped from every UPDATE. Promotion to INDEXABLE is a separate,
+// explicit step (scripts/set-seo-status.ts); re-running this script later (e.g. to
+// fix a typo) must never silently demote a live, indexed page back to DRAFT. Do not
+// "simplify" this back to `update: data`. See docs/CONTENT_WORKFLOW.md.
+function withoutSeoStatus<T extends { seoStatus?: unknown }>(data: T): Omit<T, "seoStatus"> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { seoStatus, ...rest } = data;
+  return rest;
+}
 
 const RETRIEVED_AT = new Date("2026-09-07");
 const AMAZON_MERCHANT_ID = "merchant_amazon";
@@ -36,7 +48,7 @@ const LEUPOLD_RANGEFINDER_ID = "product_leupold_rx_1400i_tbrw_gen2";
 const RANGEFINDER_COMPARISON_ID = "comparison_vortex_ranger_1300_vs_leupold_rx_1400i";
 
 async function upsertProduct(data: Prisma.ProductUncheckedCreateInput & { id: string }) {
-  await prisma.product.upsert({ where: { id: data.id }, create: data, update: data });
+  await prisma.product.upsert({ where: { id: data.id }, create: data, update: withoutSeoStatus(data) });
 }
 
 async function upsertOffer(
@@ -194,7 +206,7 @@ async function main() {
   await prisma.comparison.upsert({
     where: { id: SCOPE_COMPARISON_ID },
     create: scopeComparison,
-    update: scopeComparison,
+    update: withoutSeoStatus(scopeComparison),
   });
   for (const [index, productId] of [VORTEX_SCOPE_ID, CELESTRON_SCOPE_ID].entries()) {
     await prisma.comparisonProduct.upsert({
@@ -350,7 +362,7 @@ async function main() {
   await prisma.comparison.upsert({
     where: { id: RANGEFINDER_COMPARISON_ID },
     create: rangefinderComparison,
-    update: rangefinderComparison,
+    update: withoutSeoStatus(rangefinderComparison),
   });
   for (const [index, productId] of [VORTEX_RANGEFINDER_ID, LEUPOLD_RANGEFINDER_ID].entries()) {
     await prisma.comparisonProduct.upsert({

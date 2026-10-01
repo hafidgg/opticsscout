@@ -17,7 +17,8 @@
  * Created as seoStatus: DRAFT — promotion to INDEXABLE is a separate, explicit step
  * pending review (see docs/SEO_CONTENT_ROADMAP.md item #2).
  *
- * Idempotent: the upsert's `update` mirrors its `create`.
+ * Idempotent: the upsert's `update` mirrors its `create`, except seoStatus, which
+ * is create-only (see withoutSeoStatus below) so a re-run never changes indexability.
  *
  * Run: npx tsx scripts/content-batch-4-best-rangefinders-under-500.ts
  */
@@ -28,6 +29,17 @@ import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg(process.env.DATABASE_URL as string);
 const prisma = new PrismaClient({ adapter });
+
+// seoStatus is written on CREATE only — a brand-new row starts as DRAFT — and is
+// deliberately stripped from every UPDATE. Promotion to INDEXABLE is a separate,
+// explicit step (scripts/set-seo-status.ts); re-running this script later (e.g. to
+// fix a typo) must never silently demote a live, indexed page back to DRAFT. Do not
+// "simplify" this back to `update: data`. See docs/CONTENT_WORKFLOW.md.
+function withoutSeoStatus<T extends { seoStatus?: unknown }>(data: T): Omit<T, "seoStatus"> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { seoStatus, ...rest } = data;
+  return rest;
+}
 
 const BEST_PAGE_ID = "best_rangefinders_under_500";
 const LEUPOLD_RANGEFINDER_ID = "product_leupold_rx_1400i_tbrw_gen2";
@@ -52,7 +64,7 @@ async function main() {
   await prisma.bestPage.upsert({
     where: { id: BEST_PAGE_ID },
     create: bestPage,
-    update: bestPage,
+    update: withoutSeoStatus(bestPage),
   });
 
   const entries: Array<{ productId: string; position: number }> = [
@@ -68,7 +80,7 @@ async function main() {
     });
   }
 
-  console.log(`BestPage ${BEST_PAGE_ID} upserted (seoStatus: DRAFT) with ${entries.length} products.`);
+  console.log(`BestPage ${BEST_PAGE_ID} upserted (seoStatus: DRAFT if new, otherwise unchanged) with ${entries.length} products.`);
 }
 
 main()

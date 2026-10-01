@@ -15,8 +15,9 @@
  * number is not substituted for a real one. The ProductOffer.url below IS a real,
  * verified-to-exist Amazon product page for that exact model.
  *
- * Idempotent: every upsert's `update` mirrors its `create`, so re-running after
- * editing this file applies the edits to already-inserted rows.
+ * Idempotent: every upsert's `update` mirrors its `create` (except seoStatus, which
+ * is create-only — see withoutSeoStatus below), so re-running after editing this
+ * file applies the edits to already-inserted rows without changing indexability.
  *
  * Run: npx tsx scripts/content-batch-1-birding-optics.ts
  */
@@ -27,6 +28,17 @@ import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg(process.env.DATABASE_URL as string);
 const prisma = new PrismaClient({ adapter });
+
+// seoStatus is written on CREATE only — a brand-new row starts as DRAFT — and is
+// deliberately stripped from every UPDATE. Promotion to INDEXABLE is a separate,
+// explicit step (scripts/set-seo-status.ts); re-running this script later (e.g. to
+// fix a typo) must never silently demote a live, indexed page back to DRAFT. Do not
+// "simplify" this back to `update: data`. See docs/CONTENT_WORKFLOW.md.
+function withoutSeoStatus<T extends { seoStatus?: unknown }>(data: T): Omit<T, "seoStatus"> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { seoStatus, ...rest } = data;
+  return rest;
+}
 
 const RETRIEVED_AT = new Date("2026-09-07");
 
@@ -109,7 +121,7 @@ async function main() {
   await prisma.product.upsert({
     where: { id: VORTEX_DB_HD_8X42_ID },
     create: vortexDbHd8x42,
-    update: vortexDbHd8x42,
+    update: withoutSeoStatus(vortexDbHd8x42),
   });
 
   const vortexDbHd8x42AmazonOffer = {
@@ -186,7 +198,7 @@ async function main() {
   await prisma.product.upsert({
     where: { id: NIKON_MONARCH_M5_8X42_ID },
     create: nikonM5_8x42,
-    update: nikonM5_8x42,
+    update: withoutSeoStatus(nikonM5_8x42),
   });
 
   // Nikon does not publish a public MSRP for this model (its official page lists no
@@ -227,7 +239,7 @@ async function main() {
   await prisma.comparison.upsert({
     where: { id: COMPARISON_ID },
     create: comparison,
-    update: comparison,
+    update: withoutSeoStatus(comparison),
   });
 
   const comparisonProducts = [VORTEX_DB_HD_8X42_ID, NIKON_MONARCH_M5_8X42_ID];
