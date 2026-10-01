@@ -109,6 +109,20 @@ export default async function HomePage() {
       <div className="mx-auto max-w-3xl px-6 pb-12">
         <AffiliateDisclosure />
       </div>
+
+      {/* TEMPORARY — AvantLink affiliate-network application verification script.
+          Requested 2026-09-22, homepage-only, to be removed once the user confirms
+          AvantLink verification has succeeded (follow-up task will delete this
+          block and redeploy). Do not leave this in place long-term.
+          Deliberately a plain <script> tag, not next/script: next/script's loading
+          strategies emit a <link rel="preload"> + a client-hydrated reference, not a
+          literal <script src> in the server-rendered HTML, which is what AvantLink's
+          verification needs to find in a raw fetch of the page. */}
+      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+      <script
+        type="text/javascript"
+        src="http://classic.avantlink.com/affiliate_app_confirm.php?mode=js&authResponse=1f0373112ccab0ed19cedc528a81dbb71eeb1531"
+      />
     </main>
   );
 }
