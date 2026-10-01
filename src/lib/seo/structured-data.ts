@@ -48,6 +48,7 @@ const availabilityMap: Record<string, string | undefined> = {
 /**
  * Builds a schema.org Product node. Only includes an `aggregateRating` block when
  * rating AND reviewCount are both present and non-null — never invented (Section 37).
+ * Returns null when the node would have neither offers nor aggregateRating.
  */
 export function buildProductJsonLd(input: JsonLdProductInput) {
   const siteUrl = getSiteUrl();
@@ -97,6 +98,15 @@ export function buildProductJsonLd(input: JsonLdProductInput) {
       ratingValue: product.rating,
       reviewCount: product.reviewCount,
     };
+  }
+
+  // Google requires a Product node to carry one of offers / review / aggregateRating;
+  // without any, it's reported as an invalid item and is never rich-result eligible.
+  // Emit nothing rather than an invalid node (this builder never builds `review`).
+  // It reappears automatically once a verified price or real rating exists. See
+  // docs/CONTENT_WORKFLOW.md.
+  if (!node.offers && !node.aggregateRating) {
+    return null;
   }
 
   return node;

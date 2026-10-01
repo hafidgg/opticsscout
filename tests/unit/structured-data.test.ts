@@ -21,7 +21,8 @@ describe("buildProductJsonLd", () => {
       product: { ...baseProduct, rating: null, reviewCount: null },
       offers: [],
     });
-    expect(node.aggregateRating).toBeUndefined();
+    // No offers and no valid rating either, so no Product node is emitted at all.
+    expect(node).toBeNull();
   });
 
   it("never emits aggregateRating when reviewCount is null even if rating is set", () => {
@@ -29,7 +30,8 @@ describe("buildProductJsonLd", () => {
       product: { ...baseProduct, rating: 4.2, reviewCount: null },
       offers: [],
     });
-    expect(node.aggregateRating).toBeUndefined();
+    // No offers and no valid rating either, so no Product node is emitted at all.
+    expect(node).toBeNull();
   });
 
   it("never emits aggregateRating when reviewCount is zero", () => {
@@ -37,7 +39,8 @@ describe("buildProductJsonLd", () => {
       product: { ...baseProduct, rating: 4.2, reviewCount: 0 },
       offers: [],
     });
-    expect(node.aggregateRating).toBeUndefined();
+    // No offers and no valid rating either, so no Product node is emitted at all.
+    expect(node).toBeNull();
   });
 
   it("emits aggregateRating only when both rating and reviewCount are real", () => {
@@ -45,7 +48,7 @@ describe("buildProductJsonLd", () => {
       product: { ...baseProduct, rating: 4.5, reviewCount: 128 },
       offers: [],
     });
-    expect(node.aggregateRating).toEqual({
+    expect(node?.aggregateRating).toEqual({
       "@type": "AggregateRating",
       ratingValue: 4.5,
       reviewCount: 128,
@@ -66,7 +69,7 @@ describe("buildProductJsonLd", () => {
         },
       ],
     });
-    expect(node.offers).toEqual([
+    expect(node?.offers).toEqual([
       {
         "@type": "Offer",
         price: 399,
@@ -94,7 +97,7 @@ describe("buildProductJsonLd", () => {
         },
       ],
     });
-    const offers = node.offers as Array<{ availability?: string }>;
+    const offers = node?.offers as Array<{ availability?: string }>;
     expect(offers[0].availability).toBeUndefined();
   });
 
@@ -114,7 +117,8 @@ describe("buildProductJsonLd", () => {
         },
       ],
     });
-    expect(node.offers).toBeUndefined();
+    // Priceless offer dropped, nothing else qualifies, so no Product node at all.
+    expect(node).toBeNull();
   });
 
   it("still emits priced offers when mixed with an unpriced one", () => {
@@ -139,7 +143,7 @@ describe("buildProductJsonLd", () => {
         },
       ],
     });
-    const offers = node.offers as Array<{ price: number }>;
+    const offers = node?.offers as Array<{ price: number }>;
     expect(offers).toHaveLength(1);
     expect(offers[0].price).toBe(249);
   });
@@ -160,13 +164,63 @@ describe("buildProductJsonLd", () => {
         },
       ],
     });
-    expect(node.offers).toBeUndefined();
-    // The Product node itself is unaffected.
-    expect(node["@type"]).toBe("Product");
-    expect(node.name).toBe(baseProduct.name);
-    expect(node.description).toBe(baseProduct.shortDescription);
-    expect(node.brand).toEqual({ "@type": "Brand", name: baseProduct.brand });
-    expect(node.url).toContain(baseProduct.canonicalPath);
+    // MSRP offer dropped and no rating, so none of offers/review/aggregateRating:
+    // no Product node at all rather than one Google reports as an invalid item.
+    expect(node).toBeNull();
+  });
+
+  it("emits a Product node without offers when only a real aggregateRating qualifies it", () => {
+    const node = buildProductJsonLd({
+      product: { ...baseProduct, rating: 4.5, reviewCount: 128 },
+      offers: [
+        {
+          price: 449.99,
+          currency: "USD",
+          isMsrp: true,
+          availability: "UNKNOWN",
+          url: "https://example.com/msrp-offer",
+          merchant: { name: "MidwayUSA" },
+        },
+      ],
+    });
+    expect(node).not.toBeNull();
+    expect(node?.offers).toBeUndefined();
+    expect(node?.aggregateRating).toBeDefined();
+  });
+
+  it("emits the full Product node once a verified (non-MSRP) price exists", () => {
+    const node = buildProductJsonLd({
+      product: { ...baseProduct, rating: null, reviewCount: null },
+      offers: [
+        {
+          price: 429,
+          currency: "USD",
+          isMsrp: false,
+          availability: "UNKNOWN",
+          url: "https://example.com/verified-offer",
+          merchant: { name: "Amazon" },
+        },
+      ],
+    });
+    expect(node).toEqual({
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: baseProduct.name,
+      description: baseProduct.shortDescription,
+      image: undefined,
+      brand: { "@type": "Brand", name: baseProduct.brand },
+      url: expect.stringContaining(baseProduct.canonicalPath),
+      offers: [
+        {
+          "@type": "Offer",
+          price: 429,
+          priceCurrency: "USD",
+          availability: undefined,
+          url: "https://example.com/verified-offer",
+          seller: { "@type": "Organization", name: "Amazon" },
+        },
+      ],
+    });
   });
 
   it("emits only the verified-price offer when mixed with an MSRP one", () => {
@@ -191,7 +245,7 @@ describe("buildProductJsonLd", () => {
         },
       ],
     });
-    expect(node.offers).toEqual([
+    expect(node?.offers).toEqual([
       {
         "@type": "Offer",
         price: 429,

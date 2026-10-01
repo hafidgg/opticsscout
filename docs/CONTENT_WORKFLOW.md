@@ -65,6 +65,35 @@ Accepted trade-off. Once any offer gets a verified retailer price (set `price` w
 `isMsrp: false`, e.g. via `scripts/add-offer.ts`), its `Offer` appears automatically — a
 data change, no code change.
 
+**Product node omitted when it would be invalid** (2026-10-01 — read before
+re-opening): Google requires a Product to carry one of `offers` / `review` /
+`aggregateRating`, and reports one without as an invalid item ("Must define 'offers',
+'review', or 'aggregateRating'"). After the rule above, every current product has none
+of the three. So `buildProductJsonLd` returns `null` and the product page emits **no
+Product JSON-LD at all** — never a partial/invalid node. BreadcrumbList and the
+site-wide Organization/WebSite JSON-LD are unaffected. Nothing is lost: an invalid
+node was never rich-result eligible, and structured-data errors aren't a ranking
+penalty. The Product node reappears automatically, with no code change, once a
+product gets a verified retailer price (`isMsrp: false`) or a real rating.
+
+Why not mark the MSRP as a list price instead? schema.org does have
+`UnitPriceSpecification.priceType` with `https://schema.org/ListPrice`,
+`https://schema.org/MSRP`, `https://schema.org/SRP`, etc. But Google only accepts a
+typed price **in addition to** an active selling price:
+- Its merchant listing doc says "Don't mark the active price with a `priceType`
+  property". A `StrikethroughPrice`/`ListPrice` needs "a current sale price" on the
+  same Offer.
+- Its product snippet doc defines `price` / `priceSpecification.price` as "the offer
+  price of a product", with no mention of `priceType`.
+
+So an Offer whose only price is a `priceType: MSRP` is either rejected (no active
+price), or Google reads the MSRP as the seller's offer price. That is exactly the
+misrepresentation this rule exists to prevent. There is no honest way to put an
+MSRP-only Offer in Google's markup.
+
+What brings a valid Product node back: a verified retailer price (`isMsrp: false`), or
+real reviews/ratings. **Never** fabricate availability, reviews, or ratings to satisfy it.
+
 Search Console "Merchant listing" warnings (missing image / availability /
 shippingDetails / hasMerchantReturnPolicy) don't apply to this site: Google's docs state
 merchant listings are only for pages where a shopper can buy, "not pages with links to

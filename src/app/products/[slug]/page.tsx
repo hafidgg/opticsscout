@@ -100,7 +100,7 @@ export default async function ProductPage({ params }: PageProps) {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <JsonLd data={productJsonLd} />
+      {productJsonLd && <JsonLd data={productJsonLd} />}
 
       <Breadcrumbs
         segments={[
