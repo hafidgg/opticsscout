@@ -26,7 +26,7 @@ export interface JsonLdProductInput {
     | "reviewCount"
     | "canonicalPath"
   >;
-  offers: (Pick<ProductOffer, "currency" | "availability" | "url"> & {
+  offers: (Pick<ProductOffer, "currency" | "availability" | "url" | "isMsrp"> & {
     // Decimal is converted to a plain number by the caller (repository.ts) before
     // this builder ever sees it — JSON-LD needs a plain numeric/undefined value.
     price: number | null;
@@ -69,7 +69,13 @@ export function buildProductJsonLd(input: JsonLdProductInput) {
   // than emitted as an incomplete/invalid Offer node. Found during the 2026-09 SEO
   // structured-data audit — WhereToBuy already handles a priceless offer gracefully
   // on the visible page; this just brings the JSON-LD in line with the same rule.
-  const pricedOffers = offers.filter((offer) => offer.price !== null);
+  //
+  // MSRP-only offers are excluded too: an Offer node asserts that its `seller` sells
+  // at that price, and an MSRP is the manufacturer's suggested price, not a verified
+  // retailer price. The visible page labels it "MSRP"; JSON-LD has no honest way to,
+  // so it's left out. Once an offer gets a verified retailer price (isMsrp: false),
+  // it appears here automatically — a data change, no code change.
+  const pricedOffers = offers.filter((offer) => offer.price !== null && !offer.isMsrp);
   if (pricedOffers.length > 0) {
     node.offers = pricedOffers.map((offer) => ({
       "@type": "Offer",

@@ -91,6 +91,7 @@ export default async function ProductPage({ params }: PageProps) {
     offers: offers.map((o) => ({
       price: o.price,
       currency: o.currency,
+      isMsrp: o.isMsrp,
       availability: o.availability,
       url: o.url,
       merchant: { name: o.merchant.name },

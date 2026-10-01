@@ -59,6 +59,7 @@ describe("buildProductJsonLd", () => {
         {
           price: 399,
           currency: "USD",
+          isMsrp: false,
           availability: "IN_STOCK",
           url: "https://example.com/offer",
           merchant: { name: "Amazon" },
@@ -86,6 +87,7 @@ describe("buildProductJsonLd", () => {
         {
           price: 399,
           currency: "USD",
+          isMsrp: false,
           availability: "UNKNOWN",
           url: "https://example.com/offer",
           merchant: { name: "Amazon" },
@@ -105,6 +107,7 @@ describe("buildProductJsonLd", () => {
         {
           price: null,
           currency: "USD",
+          isMsrp: false,
           availability: "UNKNOWN",
           url: "https://example.com/no-price-offer",
           merchant: { name: "Amazon" },
@@ -121,6 +124,7 @@ describe("buildProductJsonLd", () => {
         {
           price: null,
           currency: "USD",
+          isMsrp: false,
           availability: "UNKNOWN",
           url: "https://example.com/no-price-offer",
           merchant: { name: "NoPriceMerchant" },
@@ -128,6 +132,7 @@ describe("buildProductJsonLd", () => {
         {
           price: 249,
           currency: "USD",
+          isMsrp: false,
           availability: "IN_STOCK",
           url: "https://example.com/priced-offer",
           merchant: { name: "Amazon" },
@@ -137,6 +142,65 @@ describe("buildProductJsonLd", () => {
     const offers = node.offers as Array<{ price: number }>;
     expect(offers).toHaveLength(1);
     expect(offers[0].price).toBe(249);
+  });
+
+  it("excludes an MSRP-only offer — MSRP is not a verified retailer price", () => {
+    // Mirrors every current real offer (e.g. Vortex Ranger 1300, $449.99 MSRP at
+    // MidwayUSA): an Offer node would assert MidwayUSA sells at that price.
+    const node = buildProductJsonLd({
+      product: { ...baseProduct, rating: null, reviewCount: null },
+      offers: [
+        {
+          price: 449.99,
+          currency: "USD",
+          isMsrp: true,
+          availability: "UNKNOWN",
+          url: "https://example.com/msrp-offer",
+          merchant: { name: "MidwayUSA" },
+        },
+      ],
+    });
+    expect(node.offers).toBeUndefined();
+    // The Product node itself is unaffected.
+    expect(node["@type"]).toBe("Product");
+    expect(node.name).toBe(baseProduct.name);
+    expect(node.description).toBe(baseProduct.shortDescription);
+    expect(node.brand).toEqual({ "@type": "Brand", name: baseProduct.brand });
+    expect(node.url).toContain(baseProduct.canonicalPath);
+  });
+
+  it("emits only the verified-price offer when mixed with an MSRP one", () => {
+    const node = buildProductJsonLd({
+      product: { ...baseProduct, rating: null, reviewCount: null },
+      offers: [
+        {
+          price: 449.99,
+          currency: "USD",
+          isMsrp: true,
+          availability: "UNKNOWN",
+          url: "https://example.com/msrp-offer",
+          merchant: { name: "MidwayUSA" },
+        },
+        {
+          price: 429,
+          currency: "USD",
+          isMsrp: false,
+          availability: "IN_STOCK",
+          url: "https://example.com/verified-offer",
+          merchant: { name: "Amazon" },
+        },
+      ],
+    });
+    expect(node.offers).toEqual([
+      {
+        "@type": "Offer",
+        price: 429,
+        priceCurrency: "USD",
+        availability: "https://schema.org/InStock",
+        url: "https://example.com/verified-offer",
+        seller: { "@type": "Organization", name: "Amazon" },
+      },
+    ]);
   });
 });
 

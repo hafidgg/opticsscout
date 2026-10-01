@@ -52,6 +52,24 @@ to `update: data`.
 
 Applied in: `content-batch-1` through `content-batch-4`.
 
+## Structured data: Offers only for verified retailer prices
+
+Product-page JSON-LD (`buildProductJsonLd` in `src/lib/seo/structured-data.ts`) emits
+an `Offer` only for offers with a real price **and** `isMsrp: false`. An `Offer` node
+asserts that its `seller` sells at that price; an MSRP isn't that, so MSRP-only offers
+are left out of JSON-LD (the visible page still shows them, labeled "MSRP").
+
+As of 2026-10-01 every priced offer is MSRP, so no product emits an `Offer`, and with no
+`review`/`aggregateRating` either, Product nodes aren't product-snippet eligible yet.
+Accepted trade-off. Once any offer gets a verified retailer price (set `price` with
+`isMsrp: false`, e.g. via `scripts/add-offer.ts`), its `Offer` appears automatically — a
+data change, no code change.
+
+Search Console "Merchant listing" warnings (missing image / availability /
+shippingDetails / hasMerchantReturnPolicy) don't apply to this site: Google's docs state
+merchant listings are only for pages where a shopper can buy, "not pages with links to
+other sites that sell the product." Never fabricate those fields to silence them.
+
 ## Caution: batch scripts are not a source of truth for later fixes
 
 A batch script reflects the data as of when it was written. Fixes made afterwards
