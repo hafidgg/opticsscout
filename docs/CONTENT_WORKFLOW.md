@@ -16,9 +16,29 @@ database and goes live. Affiliate offers have their own guide in
    `scripts/set-seo-status.ts` for a preview if needed, then set it back).
 4. **Promote** after approval:
    `npx tsx scripts/set-seo-status.ts <product|comparison|guide|bestPage> <id> INDEXABLE`.
-   Sitemap, category links, and robots `index, follow` follow automatically
+   Sitemap, category links, and robots `index, follow` follow from `seoStatus`
    (indexing additionally requires being on the final domain — see
-   `isOnFinalDomain()` in `src/lib/seo/metadata.ts`).
+   `isOnFinalDomain()` in `src/lib/seo/metadata.ts`) — **but only after the next
+   build** (see below).
+
+## Rule: a database change goes live only on the next build
+
+Content pages are statically generated at build time (no `revalidate`), and every
+push to `main` auto-deploys to production via Vercel's GitHub integration. A
+database-only change — a promotion via `set-seo-status.ts`, a content-script re-run,
+an offer price change — does **not** reach the live site until something rebuilds it.
+Until then the old version stays cached; a page promoted after its build keeps
+returning 404 and stays out of the sitemap.
+
+So, for any content change:
+
+- **Change the database first, then push**: the deploy builds with the new data. Or,
+- **if the deploy already ran**, trigger a rebuild with an empty commit:
+  `git commit --allow-empty -m "Rebuild to publish <what>"` and push.
+
+Then verify live (status code, sitemap) — never assume a DB change is live.
+Learned 2026-10-03: the "Budget vs Premium Rangefinder" guide, promoted after its
+deploy, stayed 404 until an empty-commit rebuild (`e00ef7a`).
 
 ## Rule: seoStatus is create-only in content scripts
 
