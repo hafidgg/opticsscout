@@ -51,7 +51,7 @@ export function FeaturedProductCard({ product }: { product: FeaturedProductCardD
             )}
           </>
         ) : (
-          <span className="text-sm text-[var(--color-muted)]">Price varies</span>
+          <span className="text-sm text-[var(--color-muted)]">No verified price</span>
         )}
       </div>
 

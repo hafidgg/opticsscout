@@ -55,7 +55,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
               </p>
             </>
           ) : (
-            <span className="text-sm text-[var(--color-muted)]">Price varies</span>
+            <span className="text-sm text-[var(--color-muted)]">No verified price</span>
           )}
         </div>
         {product.merchantCount > 0 && (
