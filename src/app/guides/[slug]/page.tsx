@@ -8,6 +8,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ProductCard, type ProductCardData } from "@/components/product/ProductCard";
 import { AffiliateDisclosure } from "@/components/affiliate/AffiliateDisclosure";
+import { GuideContent } from "@/components/content/GuideContent";
 
 /** Same required pipeline as the product page — see that file's header comment. */
 
@@ -95,11 +96,7 @@ export default async function GuidePage({ params }: PageProps) {
 
       <h1 className="mt-4 font-serif text-3xl text-[var(--color-ink)]">{guide.title}</h1>
 
-      {guide.content && (
-        <p className="mt-6 text-base leading-relaxed text-[var(--color-ink)]">
-          {guide.content}
-        </p>
-      )}
+      {guide.content && <GuideContent content={guide.content} />}
 
       {cards.length > 0 && (
         <div className="mt-8">
