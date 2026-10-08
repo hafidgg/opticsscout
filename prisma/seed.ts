@@ -4,6 +4,15 @@
  * inserted as real rows so the repository/gate/route pipeline can be verified
  * end-to-end against a real database. Idempotent (safe to re-run): every write is an
  * upsert keyed by the record's fixed mock id.
+ *
+ * WARNING — NEVER run this against the PRODUCTION database. It inserts fake test data
+ * (e.g. the "Standing Desks"/"Ergonomic Chairs" categories, mock desk/chair products
+ * with example.com-style offer URLs, a mock guide and best page) — the exact leftover
+ * mock rows deleted from production on 2026-10-08 because they were live and
+ * indexable on an optics-only site. The integration tests need this data, so it
+ * belongs only in the separate dev/test database (`.env`'s DATABASE_URL), never the
+ * production one (`.env.local` / Vercel's DATABASE_URL). Check which DATABASE_URL is
+ * set before running `npm run db:seed`.
  */
 
 import "dotenv/config";
