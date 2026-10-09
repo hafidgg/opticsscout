@@ -21,11 +21,15 @@ import {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
+  // Hand-built pages carry no lastModified: there's no tracked modification date for
+  // them, and `new Date()` here stamped every one with the build time, so their
+  // lastmod changed on every deploy even when the page didn't. Google learns to
+  // distrust a sitemap's lastmod when it's unreliable, which weakens it for the
+  // content entries below, whose lastModified is the record's real updatedAt.
   const staticEntries: MetadataRoute.Sitemap = [
-    { url: siteUrl, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
+    { url: siteUrl, changeFrequency: "weekly", priority: 1 },
     {
       url: `${siteUrl}/categories`,
-      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.5,
     },
@@ -41,7 +45,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ] as const
     ).map((path) => ({
       url: `${siteUrl}${path}`,
-      lastModified: new Date(),
       changeFrequency: "yearly" as const,
       priority: 0.3,
     })),

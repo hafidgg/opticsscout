@@ -253,6 +253,11 @@ export interface ResolvedCategory {
   /** INDEXABLE "/best/" pages whose categoryId is this category — same idea as
    *  comparisons above, via the existing Category.bestPages relation. */
   bestPages: { title: string; path: string }[];
+  /** INDEXABLE guides related to this category: either filed under it (categoryId)
+   *  or featuring at least one of its products (e.g. the Spotting Scope vs Binoculars
+   *  guide is filed under Birding Optics but also lists the two scopes, so it shows on
+   *  Spotting Scopes too). Without this, guides were reachable only via the sitemap. */
+  guides: { title: string; path: string }[];
 }
 
 export async function getCategoryBySlug(slug: string): Promise<ResolvedCategory | null> {
@@ -264,7 +269,7 @@ export async function getCategoryBySlug(slug: string): Promise<ResolvedCategory 
 
   const { products, children: childCategories, ...categoryFields } = category;
 
-  const [siblingCategories, comparisons, bestPages] = await Promise.all([
+  const [siblingCategories, comparisons, bestPages, guides] = await Promise.all([
     categoryFields.parentId
       ? prisma.category.findMany({
           where: { parentId: categoryFields.parentId, id: { not: categoryFields.id } },
@@ -282,6 +287,17 @@ export async function getCategoryBySlug(slug: string): Promise<ResolvedCategory 
       where: { categoryId: categoryFields.id, seoStatus: "INDEXABLE" },
       select: { title: true, slug: true, canonicalPath: true },
     }),
+    prisma.guide.findMany({
+      where: {
+        seoStatus: "INDEXABLE",
+        OR: [
+          { categoryId: categoryFields.id },
+          { products: { some: { product: { categoryId: categoryFields.id } } } },
+        ],
+      },
+      select: { title: true, slug: true, canonicalPath: true },
+      orderBy: { title: "asc" },
+    }),
   ]);
 
   return {
@@ -296,6 +312,10 @@ export async function getCategoryBySlug(slug: string): Promise<ResolvedCategory 
     bestPages: bestPages.map((b) => ({
       title: b.title,
       path: b.canonicalPath ?? `/best/${b.slug}`,
+    })),
+    guides: guides.map((g) => ({
+      title: g.title,
+      path: g.canonicalPath ?? `/guides/${g.slug}`,
     })),
   };
 }

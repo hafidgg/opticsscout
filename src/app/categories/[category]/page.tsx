@@ -58,8 +58,15 @@ export default async function CategoryPage({ params }: PageProps) {
     notFound();
   }
 
-  const { category, products, childCategories, siblingCategories, comparisons, bestPages } =
-    resolved;
+  const {
+    category,
+    products,
+    childCategories,
+    siblingCategories,
+    comparisons,
+    bestPages,
+    guides,
+  } = resolved;
 
   const indexableProducts = products.filter((p) => p.seoStatus === "INDEXABLE");
 
@@ -137,6 +144,24 @@ export default async function CategoryPage({ params }: PageProps) {
                   className="text-sm text-[var(--color-ink)] underline hover:text-[var(--color-accent)]"
                 >
                   {bestPage.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {guides.length > 0 && (
+        <div className="mt-10 border-t border-[var(--color-border)] pt-6">
+          <h2 className="font-serif text-lg text-[var(--color-ink)]">Related guides</h2>
+          <ul className="mt-2 flex flex-wrap gap-3">
+            {guides.map((guide) => (
+              <li key={guide.path}>
+                <Link
+                  href={guide.path}
+                  className="text-sm text-[var(--color-ink)] underline hover:text-[var(--color-accent)]"
+                >
+                  {guide.title}
                 </Link>
               </li>
             ))}
