@@ -7,7 +7,8 @@ export function AffiliateDisclosure({ className = "" }: { className?: string }) 
   return (
     <p className={`text-xs text-neutral-500 ${className}`}>
       This page may contain affiliate links. If you purchase through one, we may earn a
-      commission at no extra cost to you.{" "}
+      commission at no extra cost to you. As an Amazon Associate I earn from qualifying
+      purchases.{" "}
       <a href="/affiliate-disclosure" className="underline hover:text-neutral-700">
         Learn more
       </a>

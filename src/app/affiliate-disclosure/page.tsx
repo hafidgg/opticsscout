@@ -24,6 +24,9 @@ export default function AffiliateDisclosurePage() {
           we may earn a commission — at no extra cost to you. The price you pay is
           the same whether or not you use our link.
         </p>
+        <p className="mt-3 text-base leading-relaxed text-[var(--color-ink)]">
+          As an Amazon Associate I earn from qualifying purchases.
+        </p>
       </section>
 
       <section className="mt-8">

@@ -7,6 +7,11 @@
  * Never renders aggressive copy like "BUY NOW!!!" — see Section 24.
  */
 
+// Amazon Associates policy forbids hiding the referring site from Amazon, so Amazon
+// links omit `noreferrer` (keeping sponsored/nofollow/noopener). Other merchants keep
+// `noreferrer`. Matches the Merchant row id for Amazon in the database.
+const AMAZON_MERCHANT_ID = "merchant_amazon";
+
 interface AffiliateButtonProps {
   productId: string;
   merchantId: string;
@@ -36,7 +41,11 @@ export function AffiliateButton({
   return (
     <a
       href={href}
-      rel="sponsored nofollow noopener noreferrer"
+      rel={
+        merchantId === AMAZON_MERCHANT_ID
+          ? "sponsored nofollow noopener"
+          : "sponsored nofollow noopener noreferrer"
+      }
       target="_blank"
       className="inline-flex items-center justify-between gap-3 rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm transition hover:border-neutral-400 hover:shadow"
     >
