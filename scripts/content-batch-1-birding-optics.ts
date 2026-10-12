@@ -72,7 +72,7 @@ async function main() {
     brand: "Vortex Optics",
     categoryId: "category_birding_optics",
     description:
-      "An 8x42 roof-prism binocular from Vortex's HD tier, sitting below the Viper HD and Razor HD in the brand's own lineup. Dielectric-coated prisms and fully multi-coated HD lens elements target the sub-$350 price band, and every Vortex optic — including this one — carries the brand's unconditional VIP lifetime warranty, transferable to a second owner.",
+      "An 8x42 roof-prism binocular from Vortex's HD tier, sitting below the Viper HD and Razor HD in the brand's own lineup. Dielectric-coated prisms and fully multi-coated HD lens elements target the sub-$350 price band, and every Vortex optic — including this one — carries the brand's unconditional VIP lifetime warranty.",
     shortDescription: "8x42 roof-prism binocular, dielectric-coated HD optics, Vortex's unconditional VIP warranty.",
     images: [] as string[],
     specifications: {
@@ -93,7 +93,7 @@ async function main() {
       "Fully multi-coated HD lens elements",
       "Argon-purged and O-ring sealed (waterproof, fogproof)",
       "ArmorTek scratch-resistant exterior lens coating",
-      "Vortex VIP unconditional lifetime warranty, transferable to a second owner",
+      "Vortex VIP unconditional lifetime warranty",
     ],
     pros: [
       "393 ft field of view at 1000 yds is wide for this price tier",
