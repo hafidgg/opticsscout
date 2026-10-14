@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AffiliateButton } from "@/components/affiliate/AffiliateButton";
+import type { OutboundLink } from "@/lib/affiliate/outbound";
 
 export interface FeaturedProductCardData {
   productId: string;
@@ -9,8 +10,10 @@ export interface FeaturedProductCardData {
   price: number | null;
   currency: string;
   isMsrp: boolean;
-  merchantId: string;
   merchantName: string;
+  /** Resolved server-side in app/page.tsx (the carousel is a client component and
+   *  can't read AMAZON_ASSOCIATE_TAG). Null = no button. */
+  link: OutboundLink | null;
 }
 
 /**
@@ -58,13 +61,9 @@ export function FeaturedProductCard({ product }: { product: FeaturedProductCardD
       {/* Price already shown above — the button itself just says "Check price at
           X" rather than repeating the number a second time. */}
       <div className="mt-2">
-        <AffiliateButton
-          productId={product.productId}
-          merchantId={product.merchantId}
-          merchantName={product.merchantName}
-          page="/"
-          placement="featured-comparisons"
-        />
+        {product.link && (
+          <AffiliateButton link={product.link} merchantName={product.merchantName} />
+        )}
       </div>
     </div>
   );

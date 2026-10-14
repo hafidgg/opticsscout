@@ -143,6 +143,7 @@ export default async function ProductPage({ params }: PageProps) {
             id: o.id,
             merchantId: o.merchantId,
             merchantName: o.merchant.name,
+            url: o.url,
             price: o.price,
             currency: o.currency,
             isMsrp: o.isMsrp,

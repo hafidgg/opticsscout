@@ -77,7 +77,11 @@ export default async function ComparePage({ params }: PageProps) {
       bestForLabel: null as string | null,
       productId: product.id,
       cta: ctaOffer
-        ? { merchantId: ctaOffer.merchantId, merchantName: ctaOffer.merchant.name }
+        ? {
+            merchantId: ctaOffer.merchantId,
+            merchantName: ctaOffer.merchant.name,
+            url: ctaOffer.url,
+          }
         : null,
     };
   });

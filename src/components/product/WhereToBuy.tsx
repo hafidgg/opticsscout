@@ -1,10 +1,13 @@
 import { AffiliateButton } from "@/components/affiliate/AffiliateButton";
 import { AffiliateDisclosure } from "@/components/affiliate/AffiliateDisclosure";
+import { resolveOutboundLink } from "@/lib/affiliate/outbound";
 
 export interface OfferForDisplay {
   id: string;
   merchantId: string;
   merchantName: string;
+  /** Stored offer URL; only used to resolve the outbound link server-side. */
+  url: string;
   price: number | null;
   currency: string;
   /** True when price is a manufacturer MSRP, not a live price from this merchant. */
@@ -45,7 +48,15 @@ export function WhereToBuy({
     <div className="flex flex-col gap-3">
       <h2 className="font-serif text-xl text-[var(--color-ink)]">Where to buy</h2>
       <ul className="flex flex-col gap-2">
-        {sorted.map((offer, index) => (
+        {sorted.map((offer, index) => {
+          const link = resolveOutboundLink({
+            productId,
+            merchantId: offer.merchantId,
+            offerUrl: offer.url,
+            page,
+            placement: "where-to-buy",
+          });
+          return (
           <li
             key={offer.id}
             className="flex items-center justify-between gap-3 rounded-md border border-[var(--color-border)] bg-[var(--color-paper-raised)] p-3"
@@ -61,18 +72,18 @@ export function WhereToBuy({
                 <span className="text-xs text-[var(--color-muted)]">Out of stock</span>
               )}
             </div>
-            <AffiliateButton
-              productId={productId}
-              merchantId={offer.merchantId}
-              merchantName={offer.merchantName}
-              page={page}
-              placement="where-to-buy"
-              price={offer.price}
-              currency={offer.currency}
-              isMsrp={offer.isMsrp}
-            />
+            {link && (
+              <AffiliateButton
+                link={link}
+                merchantName={offer.merchantName}
+                price={offer.price}
+                currency={offer.currency}
+                isMsrp={offer.isMsrp}
+              />
+            )}
           </li>
-        ))}
+          );
+        })}
       </ul>
       {offers.some((o) => o.isMsrp) && (
         <p className="text-xs text-[var(--color-muted)]">

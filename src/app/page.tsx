@@ -5,6 +5,7 @@ import { Hero } from "@/components/home/Hero";
 import { FeaturedComparisonsCarousel } from "@/components/home/FeaturedComparisonsCarousel";
 import type { FeaturedProductCardData } from "@/components/product/FeaturedProductCard";
 import { getLowestPrice } from "@/lib/content/pricing";
+import { resolveOutboundLink } from "@/lib/affiliate/outbound";
 import { buildMetadata } from "@/lib/seo/metadata";
 import {
   getFeaturedProducts,
@@ -53,8 +54,16 @@ export default async function HomePage() {
       price: lowest.price,
       currency: lowest.currency,
       isMsrp: lowest.isMsrp,
-      merchantId: matchingOffer?.merchantId ?? "",
       merchantName: matchingOffer?.merchant.name ?? "",
+      link: matchingOffer
+        ? resolveOutboundLink({
+            productId: product.id,
+            merchantId: matchingOffer.merchantId,
+            offerUrl: matchingOffer.url,
+            page: "/",
+            placement: "featured-comparisons",
+          })
+        : null,
     };
   });
 

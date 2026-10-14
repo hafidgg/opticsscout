@@ -1,52 +1,71 @@
+"use client";
+
+import type { MouseEvent } from "react";
+import type { ClickBeacon, OutboundLink } from "@/lib/affiliate/outbound";
+
 /**
- * CTA button for an affiliate offer. Always routes through the first-party click
- * tracking redirect (/api/click/[productId]/[merchantId]) rather than linking straight
- * to the merchant — this is what makes click tracking and consistent disclosure work
- * everywhere (Section 18, MONETIZATION.md §3/§5).
+ * CTA button for an affiliate offer. The link itself is resolved server-side by
+ * resolveOutboundLink() (lib/affiliate/outbound.ts):
+ * - Amazon: a direct amazon.com/dp/<ASIN> link (tagged when AMAZON_ASSOCIATE_TAG is
+ *   set), rel without `noreferrer`, with the click recorded via a fire-and-forget
+ *   beacon to POST /api/click-event — no redirect through our own endpoint.
+ * - Other merchants: the first-party tracking redirect /api/click/[productId]/[merchantId].
  *
  * Never renders aggressive copy like "BUY NOW!!!" — see Section 24.
  */
 
-// Amazon Associates policy forbids hiding the referring site from Amazon, so Amazon
-// links omit `noreferrer` (keeping sponsored/nofollow/noopener). Other merchants keep
-// `noreferrer`. Matches the Merchant row id for Amazon in the database.
-const AMAZON_MERCHANT_ID = "merchant_amazon";
-
 interface AffiliateButtonProps {
-  productId: string;
-  merchantId: string;
+  /** Resolved server-side by resolveOutboundLink(). */
+  link: OutboundLink;
   merchantName: string;
-  page: string;
-  placement: string;
   price?: number | null;
   currency?: string;
   /** True when price is a manufacturer MSRP, not a live price from this merchant. */
   isMsrp?: boolean;
 }
 
+/** Fire-and-forget click record for direct (non-redirect) links. Never throws and
+ *  never delays navigation: the <a> navigates on its own. */
+function sendClickBeacon(beacon: ClickBeacon) {
+  try {
+    const body = JSON.stringify(beacon);
+    if (navigator.sendBeacon?.("/api/click-event", new Blob([body], { type: "application/json" }))) {
+      return;
+    }
+    void fetch("/api/click-event", {
+      method: "POST",
+      body,
+      keepalive: true,
+      headers: { "Content-Type": "application/json" },
+    }).catch(() => {});
+  } catch {
+    // Silent by design — tracking must never affect the visitor.
+  }
+}
+
 export function AffiliateButton({
-  productId,
-  merchantId,
+  link,
   merchantName,
-  page,
-  placement,
   price,
   currency = "USD",
   isMsrp = false,
 }: AffiliateButtonProps) {
-  const href = `/api/click/${productId}/${merchantId}?page=${encodeURIComponent(
-    page
-  )}&placement=${encodeURIComponent(placement)}`;
+  const beacon = link.beacon;
+  const onClick = beacon ? () => sendClickBeacon(beacon) : undefined;
+  // Middle-click only (button 1); right-click opens a menu, not a navigation.
+  const onAuxClick = beacon
+    ? (event: MouseEvent<HTMLAnchorElement>) => {
+        if (event.button === 1) sendClickBeacon(beacon);
+      }
+    : undefined;
 
   return (
     <a
-      href={href}
-      rel={
-        merchantId === AMAZON_MERCHANT_ID
-          ? "sponsored nofollow noopener"
-          : "sponsored nofollow noopener noreferrer"
-      }
+      href={link.href}
+      rel={link.rel}
       target="_blank"
+      onClick={onClick}
+      onAuxClick={onAuxClick}
       className="inline-flex items-center justify-between gap-3 rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm transition hover:border-neutral-400 hover:shadow"
     >
       <span>Check price at {merchantName}</span>

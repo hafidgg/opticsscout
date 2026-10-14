@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatSpecLabel, formatSpecValue, getSortedSpecKeys } from "@/lib/content/specifications";
 import { AffiliateButton } from "@/components/affiliate/AffiliateButton";
+import { resolveOutboundLink } from "@/lib/affiliate/outbound";
 
 export interface ComparisonTableProduct {
   slug: string;
@@ -20,7 +21,7 @@ export interface ComparisonTableProduct {
    *  component never queries — see repository.ts's ACTIVE_OFFER_FILTER). Null when
    *  the product currently has no active offer; the CTA cell is simply omitted, never
    *  a fake/disabled button. */
-  cta?: { merchantId: string; merchantName: string } | null;
+  cta?: { merchantId: string; merchantName: string; url: string } | null;
 }
 
 /**
@@ -98,17 +99,23 @@ export function ComparisonTable({
               <td className="p-3 text-[var(--color-muted)]">Where to buy</td>
               {products.map((product) => (
                 <td key={product.slug} className="p-3">
-                  {product.cta && product.productId ? (
-                    <AffiliateButton
-                      productId={product.productId}
-                      merchantId={product.cta.merchantId}
-                      merchantName={product.cta.merchantName}
-                      page={page ?? "unknown"}
-                      placement="comparison-table-row"
-                    />
-                  ) : (
-                    "—"
-                  )}
+                  {(() => {
+                    const link =
+                      product.cta && product.productId
+                        ? resolveOutboundLink({
+                            productId: product.productId,
+                            merchantId: product.cta.merchantId,
+                            offerUrl: product.cta.url,
+                            page: page ?? "unknown",
+                            placement: "comparison-table-row",
+                          })
+                        : null;
+                    return link && product.cta ? (
+                      <AffiliateButton link={link} merchantName={product.cta.merchantName} />
+                    ) : (
+                      "—"
+                    );
+                  })()}
                 </td>
               ))}
             </tr>
