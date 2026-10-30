@@ -226,6 +226,10 @@ const sourceRecords: Prisma.SourceRecordUncheckedCreateInput[] = [
 
 const CONTENT = `This guide compares the four binoculars we have on file in these two magnifications: the Vortex Diamondback HD in 8x42 and 10x42, and the Nikon Monarch M5 in 8x42 and 10x42. It's a comparison of these four models specifically, not of every 8x42 or 10x42 binocular. Because each brand offers both versions, you can see what changes when only the magnification changes. All figures are the manufacturers' published specifications.
 
+## What does 8x42 mean?
+
+The two numbers describe a binocular's basic optics. The first number is the magnification: an 8x42 makes what you're looking at appear 8 times closer than with the naked eye, and a 10x42 makes it appear 10 times closer. The second number is the diameter of each objective lens, the large front lenses, in millimeters. All four binoculars in this guide have 42 mm objective lenses, so the comparison here is between 8x and 10x magnification.
+
 ## Magnification
 
 The 10x42s magnify 10x and the 8x42s magnify 8x, so the 10x versions make subjects appear 25% larger. All four have 42 mm objective lenses.
