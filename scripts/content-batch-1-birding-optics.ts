@@ -101,19 +101,18 @@ async function main() {
       "Backed by Vortex's no-questions-asked VIP warranty",
     ],
     cons: [
-      "17mm eye relief is workable but not class-leading for glasses wearers — see our eyeglass-wearer guide before assuming it's comfortable for you",
-      "21.8 oz is on the heavier side for an all-day carry compared to compact 8x32 alternatives",
+      "17mm eye relief, versus 19.5mm on the Nikon Monarch M5 8x42 — glasses wearers should compare the two before buying",
     ],
     whoItsFor:
       "Birders shopping the $250-$350 tier who want a wide field of view for tracking moving birds and don't want to think about the warranty ever again. The 5-foot close focus also makes this a reasonable pick for backyard birders watching feeders at close range, not just distant field views.",
     whoShouldAvoid:
-      "Glasses wearers who need generous eye relief should compare this against the Nikon Monarch M5's 19.5mm eye relief before buying — see the comparison below. Anyone prioritizing minimum pack weight over field of view should also look at compact 8x32 designs instead of this 8x42.",
+      "Glasses wearers who need generous eye relief should compare this against the Nikon Monarch M5's 19.5mm eye relief before buying — see the comparison below.",
     verdict:
       "On specifications alone, the Diamondback HD 8x42 earns its spot in the sub-$350 tier on field of view and close focus rather than on any single standout number. The real differentiator is Vortex's warranty policy, which removes long-term risk from the purchase in a way a spec sheet alone can't capture. We have not physically tested this unit ourselves; this page is built from Vortex's own published specifications and MSRP, not hands-on impressions — see our how-we-test page for what that does and doesn't mean for this page's reliability.",
     rating: null,
     reviewCount: null,
     seoStatus: "DRAFT" as const,
-    metaTitle: "Vortex Diamondback HD 8x42 — Specs, Price, and Who It's For",
+    metaTitle: "Vortex Diamondback HD 8x42 Binocular Specs",
     metaDescription:
       "A spec-driven look at the Vortex Diamondback HD 8x42 binocular: field of view, close focus, eye relief, and Vortex's VIP warranty policy.",
     canonicalPath: "/products/vortex-diamondback-hd-8x42",
