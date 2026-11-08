@@ -1,3 +1,4 @@
+// STALE: do not run against production. See docs/CONTENT_WORKFLOW.md.
 /**
  * Content batch 2: 4 real products + 2 comparisons — 2 in Spotting Scopes, 2 in
  * Rangefinders — continuing the same sourcing standard as content-batch-1:
@@ -262,7 +263,7 @@ async function main() {
     rating: null,
     reviewCount: null,
     seoStatus: "DRAFT",
-    metaTitle: "Vortex Ranger 1300 Rangefinder — Specs, Price, and Who It's For",
+    metaTitle: "Vortex Ranger 1300 Rangefinder: Specs and MSRP",
     metaDescription:
       "A spec-driven look at the Vortex Ranger 1300 rangefinder: range, accuracy, angle compensation, and Vortex's VIP warranty policy.",
     canonicalPath: "/products/vortex-ranger-1300",

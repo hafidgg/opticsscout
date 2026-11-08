@@ -1,3 +1,4 @@
+// STALE: do not run against production. See docs/CONTENT_WORKFLOW.md.
 /**
  * One-off script: creates the "Outdoor & Field Gear" parent category and its three
  * sub-niche children (Birding Optics, Spotting Scopes, Rangefinders), per the
@@ -30,7 +31,7 @@ const CATEGORIES = [
     slug: "birding-optics",
     parentId: "category_outdoor_field_gear",
     description:
-      "Binoculars for birding — 8x42/10x42/8x32 configurations, spec-driven comparisons (field of view, close focus, ED glass, prism type).",
+      "8x42 and 10x42 birding binoculars compared on published specs: field of view, close focus, eye relief, weight and MSRP.",
   },
   {
     id: "category_spotting_scopes",
@@ -38,7 +39,7 @@ const CATEGORIES = [
     slug: "spotting-scopes",
     parentId: "category_outdoor_field_gear",
     description:
-      "Spotting scopes for long-range birding and wildlife observation — the documented next step once the binocular vertical has traction.",
+      "Spotting scopes for birding and wildlife at long range. We compare the two 20-60x scopes we have evaluated so far on published specs and MSRP.",
   },
   {
     id: "category_rangefinders",
@@ -46,7 +47,7 @@ const CATEGORIES = [
     slug: "rangefinders",
     parentId: "category_outdoor_field_gear",
     description:
-      "Rangefinders for hunting, golf, and field use — same merchant/affiliate ecosystem as birding optics (OpticsPlanet, Amazon, eBay).",
+      "Laser rangefinders compared on published specs: range on reflective and deer-sized targets, weight and MSRP. Both models we cover are under $500.",
   },
 ];
 

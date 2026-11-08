@@ -1,3 +1,4 @@
+// STALE: do not run against production. See docs/CONTENT_WORKFLOW.md.
 /**
  * Content batch 1 (check-in batch, per user agreement): 2 real products + 1
  * comparison in Birding Optics, so format/tone/criteria-table structure can be
