@@ -225,7 +225,7 @@ async function main() {
     brand: "Vortex Optics",
     categoryId: "category_rangefinders",
     description:
-      "A 6x22 laser rangefinder from Vortex rated to 1300 yards on reflective targets and 600 yards on deer-sized targets, with a built-in inclinometer for angle-compensated (HCD) distance readings. Like every Vortex optic, it carries the brand's unconditional VIP lifetime warranty.",
+      "A 6x22 laser rangefinder from Vortex rated to 1300 yards on reflective targets and 600 yards on deer-sized targets, with an angle-compensated (HCD) distance reading, per Vortex. Like every Vortex optic, it carries the brand's unconditional VIP lifetime warranty.",
     shortDescription: "6x22 laser rangefinder, 1300 yd reflective range, built-in angle-compensation.",
     images: [],
     specifications: {
@@ -240,7 +240,7 @@ async function main() {
       waterproof: true,
     } satisfies Prisma.InputJsonValue,
     features: [
-      "Angle-compensated (HCD) distance mode via built-in inclinometer",
+      "Angle-compensated (HCD) distance reading, per Vortex",
       "Ranges in under 1 second",
       "2,000+ single-range battery life",
       "Vortex VIP unconditional lifetime warranty",
@@ -254,11 +254,11 @@ async function main() {
       "At $449.99 MSRP, it costs more than double the Leupold RX-1400i TBR/W — see the comparison below for whether that gap is justified for your use case",
     ],
     whoItsFor:
-      "Hunters and long-range shooters who want maximum reflective-target range and Vortex's warranty policy, and who don't mind paying a premium over the Leupold.",
+      "Hunters and long-range shooters who want Vortex's warranty policy and don't mind paying a premium over the Leupold. Per Vortex, it's rated to 1300 yards on reflective targets and 600 yards on deer-sized targets, with an angle-compensated (HCD) distance mode.",
     whoShouldAvoid:
       "Anyone whose real-world ranging need tops out well under 600 yards on actual game (not reflective test targets) should weigh whether the extra range and price over the Leupold RX-1400i are worth it for their specific use case.",
     verdict:
-      "The headline 1300 yd figure is a reflective-target number — the 600 yd deer-target range is the more practically relevant spec for hunting use, versus 900 yd for the Leupold RX-1400i TBR/W Gen 2. Built from Vortex's own published specifications and MSRP, not hands-on field testing.",
+      "The headline 1300 yd figure is a reflective-target number; its 600 yd deer-target range compares with 900 yd for the Leupold RX-1400i TBR/W Gen 2. Built from Vortex's own published specifications and MSRP, not hands-on field testing.",
     rating: null,
     reviewCount: null,
     seoStatus: "DRAFT",
@@ -322,7 +322,7 @@ async function main() {
     whoItsFor:
       "Hunters who want the best practical (deer-target) range for the money — on that specific number, this outperforms the more expensive Vortex Ranger 1300. It also has Leupold's Flightpath archery mode.",
     whoShouldAvoid:
-      "Anyone who specifically wants Vortex's VIP warranty policy or the marginally longer reflective-target range should compare against the Ranger 1300 directly — see the comparison below.",
+      "Anyone who specifically wants Vortex's VIP warranty policy should compare against the Ranger 1300 directly — see the comparison below.",
     verdict:
       "This is the more practically capable rangefinder for actual hunting distances (900 yd deer range beats the pricier Vortex's 600 yd) at under half the price. The Vortex's advantage is its warranty policy. Built from Leupold's own published specifications and MSRP, not hands-on field testing.",
     rating: null,
@@ -352,7 +352,7 @@ async function main() {
     title: "Vortex Ranger 1300 vs Leupold RX-1400i TBR/W Gen 2",
     categoryId: "category_rangefinders",
     verdict:
-      "The reflective-target ratings are close (1300 vs 1400 yd); on deer-sized targets the Leupold is rated 900 yd vs 600. The Leupold is also lighter (5.1 oz vs 7.7 oz) and less than half the Vortex's MSRP ($199.99 vs $449.99). The Vortex's real advantages are its VIP unconditional warranty and 1x higher magnification (6x vs 5x). If deer-target range and price are the deciding factors, the Leupold wins on the numbers; if the warranty policy matters more to you than either, that changes the calculation.",
+      "The reflective-target ratings are close (1300 vs 1400 yd); on deer-sized targets the Leupold is rated 900 yd vs 600. The Leupold is also lighter (5.1 oz vs 7.7 oz) and less than half the Vortex's MSRP ($199.99 vs $449.99). The Vortex's real advantages are its VIP unconditional warranty and 6x vs 5x magnification. If deer-target range and price are the deciding factors, the Leupold wins on the numbers; if the warranty policy matters more to you than either, that changes the calculation.",
     seoStatus: "DRAFT" as const,
     metaTitle: "Vortex Ranger 1300 vs Leupold RX-1400i TBR/W Gen 2 — Which Rangefinder?",
     metaDescription:
