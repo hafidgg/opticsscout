@@ -72,8 +72,8 @@ async function main() {
     brand: "Vortex Optics",
     categoryId: "category_spotting_scopes",
     description:
-      "A 20-60x85 angled spotting scope from Vortex's HD tier — the full-size objective option in the Diamondback HD line (a compact 16-48x65 also exists at a lower price). HD optical elements, multiple anti-reflective coatings, and a built-in sunshade target long-distance field use; like every Vortex optic, it carries the brand's unconditional VIP lifetime warranty.",
-    shortDescription: "20-60x85 angled spotting scope, HD optics, built-in sunshade, Vortex VIP warranty.",
+      "A 20-60x85 angled spotting scope from Vortex's Diamondback HD line, with an HD optical system and anti-reflective coatings, per Vortex. Like every Vortex optic, it carries the brand's unconditional VIP lifetime warranty.",
+    shortDescription: "20-60x85 angled spotting scope, HD optics, Arca-Swiss compatible, Vortex VIP warranty.",
     images: [],
     specifications: {
       magnification: "20-60x",
@@ -89,24 +89,23 @@ async function main() {
     } satisfies Prisma.InputJsonValue,
     features: [
       "HD optical system with multiple anti-reflective coatings",
-      "Built-in sunshade (glare and light rain/snow protection for the objective lens)",
       "Arca-Swiss compatible, tripod adaptable",
       "Vortex VIP unconditional lifetime warranty",
     ],
     pros: [
-      "85mm objective gathers more light than the compact 65mm Diamondback HD variant — a real advantage in low light",
-      "Built-in sunshade is a genuine field-use convenience, not just a spec-sheet feature",
+      "85mm objective, versus 80mm on the Celestron Regal M2 20-60x80mm ED",
+      "Arca-Swiss compatible and tripod adaptable, per Vortex",
     ],
     cons: [
-      "60.9 oz is heavy for anything but tripod use — this is not a scope you hand-hold for long",
-      "24.6 ft close focus means it's not useful for anything nearby; it's built for distance",
+      "60.9 oz, versus 21.3–22.6 oz for the four 42mm binoculars we cover",
+      "24.6 ft close focus, versus 21.3 ft for the Celestron Regal M2 (at 20x)",
     ],
     whoItsFor:
-      "Birders and long-distance observers who already accept a tripod is part of the setup and want the widest possible light gathering at range. The 20-60x zoom range covers both a wider initial view for finding a target and higher power for confirming identification at distance.",
+      "Buyers who want a 20-60x zoom scope with an 85mm objective. On Vortex's specs its field of view runs from 108 ft at 1,000 yards at the low end of the zoom to 60 ft at the high end.",
     whoShouldAvoid:
-      "Anyone wanting a scope light enough to carry hand-held or in a daypack without a dedicated tripod should look at the compact 16-48x65 Diamondback HD instead, or reconsider whether a spotting scope is the right tool versus a higher-magnification binocular.",
+      "Anyone who needs a light optic should note its 60.9 oz weight.",
     verdict:
-      "The 85mm objective is the whole story here: more light at range than the compact 65mm variant, at a real weight cost. Built from Vortex's own published specifications and MSRP, not hands-on field testing — see our how-we-test page.",
+      "On Vortex's specs, its 85mm objective is the larger of the two scopes we cover (the Celestron's is 80mm), and at 60.9 oz it's also the lighter of the two. Built from Vortex's own published specifications and MSRP, not hands-on field testing — see our how-we-test page.",
     rating: null,
     reviewCount: null,
     seoStatus: "DRAFT",
@@ -135,8 +134,8 @@ async function main() {
     brand: "Celestron",
     categoryId: "category_spotting_scopes",
     description:
-      "An 80mm angled spotting scope from Celestron's Regal M2 line, built around an ED (extra-low dispersion) objective and Celestron's XLT multi-coating. The magnesium alloy body is lighter than a comparable aluminum housing, and the scope ships with a padded case, covers, and a digiscoping T-mount adapter included.",
-    shortDescription: "20-60x80mm ED angled spotting scope with magnesium alloy body and included digiscoping adapter.",
+      "An 80mm angled spotting scope from Celestron's Regal M2 line, built around an ED (extra-low dispersion) objective and Celestron's XLT multi-coating, with a magnesium alloy body. Celestron includes a soft carrying case, an objective lens cap, an eyepiece cover and a T-adapter.",
+    shortDescription: "20-60x80mm ED angled spotting scope with magnesium alloy body and included T-adapter.",
     images: [],
     specifications: {
       magnification: "20-60x",
@@ -152,24 +151,24 @@ async function main() {
     } satisfies Prisma.InputJsonValue,
     features: [
       "ED (extra-low dispersion) objective lens with XLT multi-coating",
-      "Magnesium alloy body — lighter than a comparable aluminum housing",
+      "Magnesium alloy body",
       "Dual focus (coarse + fine)",
-      "Includes padded case, covers, and T-mount digiscoping adapter",
+      "Includes soft carrying case, objective lens cap, eyepiece cover and T-adapter",
     ],
     pros: [
-      "Included T-mount adapter is a real, usable extra for digiscoping — not every competitor bundles this",
-      "20mm eye relief at 20x is comfortable for extended glassing sessions",
+      "Includes a T-adapter for attaching a camera with a T-ring, per Celestron",
+      "20mm eye relief at 20x, per Celestron",
     ],
     cons: [
-      "66.6 oz (with eyepiece) is heavier than the Vortex Diamondback HD 20-60x85 (60.9 oz) despite a smaller 80mm objective",
+      "66.6 oz with the included eyepiece, versus 60.9 oz for the Vortex Diamondback HD 20-60x85",
       "At $879.95 MSRP, it costs more than the larger-objective Vortex Diamondback HD 20-60x85",
     ],
     whoItsFor:
       "Buyers who specifically want the included digiscoping adapter and don't mind paying more for it, or who have a preference for Celestron's ED glass and coating approach specifically.",
     whoShouldAvoid:
-      "Anyone comparing purely on light-gathering-per-dollar should notice the Vortex Diamondback HD 20-60x85 has a larger 85mm objective at a lower MSRP — see the comparison below before assuming more expensive means better here.",
+      "Anyone comparing on objective size and MSRP should note the Vortex Diamondback HD 20-60x85 has a larger 85mm objective at a lower MSRP — see the comparison below.",
     verdict:
-      "On the numbers, this is a harder sell next to the Diamondback HD 20-60x85: smaller objective, heavier in practice, higher MSRP. The real differentiator is the included digiscoping adapter and Celestron's ED glass/coating specifics, not raw spotting performance. Built from Celestron's own published specifications and MSRP, not hands-on field testing.",
+      "On the numbers, next to the Diamondback HD 20-60x85 it has a smaller objective (80mm vs 85mm), more weight (66.6 oz with eyepiece vs 60.9 oz) and a higher MSRP. Its differences are the included T-adapter and Celestron's ED glass and XLT coating. Built from Celestron's own published specifications and MSRP, not hands-on field testing.",
     rating: null,
     reviewCount: null,
     seoStatus: "DRAFT",
@@ -197,7 +196,7 @@ async function main() {
     title: "Vortex Diamondback HD 20-60x85 vs Celestron Regal M2 20-60x80mm ED",
     categoryId: "category_spotting_scopes",
     verdict:
-      "Same zoom range (20-60x) on both, but the Vortex has the larger 85mm objective and costs less at MSRP ($699.99 vs $879.95) — on pure specs, it's the stronger pick for light-gathering per dollar. The Celestron's real counter-argument is the included T-mount digiscoping adapter and its lighter-weight-per-unit-objective-size magnesium body construction, plus whatever preference exists for Celestron's specific ED glass and XLT coating over Vortex's HD optical system. Neither brand's optical performance claims have been independently verified here — this is a specs-and-price comparison, not a resolution/brightness test.",
+      "Same zoom range (20-60x) on both, but the Vortex has the larger 85mm objective and costs less at MSRP ($699.99 vs $879.95). The Celestron's differences are the included T-adapter, its magnesium alloy body, and Celestron's ED glass and XLT coating. Neither brand's optical performance claims have been independently verified here — this is a specs-and-price comparison, not a resolution/brightness test.",
     seoStatus: "DRAFT" as const,
     metaTitle: "Vortex Diamondback HD 20-60x85 vs Celestron Regal M2 80ED — Which Spotting Scope?",
     metaDescription:
@@ -247,11 +246,11 @@ async function main() {
       "Vortex VIP unconditional lifetime warranty",
     ],
     pros: [
-      "1300 yd reflective range is genuinely long for this price tier",
-      "Angle compensation (HCD) is a real, usable feature for uphill/downhill shots, not just a marketing line",
+      "1300 yd range on reflective targets, per Vortex",
+      "Angle-compensated (HCD) distance mode, per Vortex",
     ],
     cons: [
-      "600 yd max range on deer-sized (non-reflective) targets is the practical ceiling for hunting use — the 1300 yd figure only applies to reflective targets",
+      "600 yd max range on deer-sized targets; the 1300 yd figure applies to reflective targets",
       "At $449.99 MSRP, it costs more than double the Leupold RX-1400i TBR/W — see the comparison below for whether that gap is justified for your use case",
     ],
     whoItsFor:
@@ -259,7 +258,7 @@ async function main() {
     whoShouldAvoid:
       "Anyone whose real-world ranging need tops out well under 600 yards on actual game (not reflective test targets) should weigh whether the extra range and price over the Leupold RX-1400i are worth it for their specific use case.",
     verdict:
-      "The headline 1300 yd figure is a reflective-target number — the 600 yd deer-target range is the more practically relevant spec for hunting use, and it's not dramatically ahead of cheaper competitors on that number. Built from Vortex's own published specifications and MSRP, not hands-on field testing.",
+      "The headline 1300 yd figure is a reflective-target number — the 600 yd deer-target range is the more practically relevant spec for hunting use, versus 900 yd for the Leupold RX-1400i TBR/W Gen 2. Built from Vortex's own published specifications and MSRP, not hands-on field testing.",
     rating: null,
     reviewCount: null,
     seoStatus: "DRAFT",
@@ -318,14 +317,14 @@ async function main() {
     ],
     cons: [
       "1400 yd reflective-target range is only marginally ahead of the Vortex's 1300 yd figure — not the main reason to pick this one",
-      "5x magnification is lower than the Vortex's 6x, a minor tradeoff for a wider field of view",
+      "5x magnification, versus 6x on the Vortex Ranger 1300",
     ],
     whoItsFor:
-      "Hunters who want the best practical (deer-target) range for the money — on that specific number, this outperforms the more expensive Vortex Ranger 1300. Archers will also get direct benefit from the Flightpath mode this Gen 2 model adds.",
+      "Hunters who want the best practical (deer-target) range for the money — on that specific number, this outperforms the more expensive Vortex Ranger 1300. It also has Leupold's Flightpath archery mode.",
     whoShouldAvoid:
       "Anyone who specifically wants Vortex's VIP warranty policy or the marginally longer reflective-target range should compare against the Ranger 1300 directly — see the comparison below.",
     verdict:
-      "This is the more practically capable rangefinder for actual hunting distances (900 yd deer range beats the pricier Vortex's 600 yd) at under half the price. The Vortex's advantages are its warranty policy and a slightly longer reflective-target number that matters less than the deer-target figure for real hunting use. Built from Leupold's own published specifications and MSRP, not hands-on field testing.",
+      "This is the more practically capable rangefinder for actual hunting distances (900 yd deer range beats the pricier Vortex's 600 yd) at under half the price. The Vortex's advantage is its warranty policy. Built from Leupold's own published specifications and MSRP, not hands-on field testing.",
     rating: null,
     reviewCount: null,
     seoStatus: "DRAFT",
@@ -353,7 +352,7 @@ async function main() {
     title: "Vortex Ranger 1300 vs Leupold RX-1400i TBR/W Gen 2",
     categoryId: "category_rangefinders",
     verdict:
-      "The headline reflective-target numbers (1300 yd vs 1400 yd) are close enough not to matter much, but the practically relevant deer-target range favors the cheaper Leupold: 900 yds vs the Vortex's 600 yds. The Leupold is also lighter (5.1 oz vs 7.7 oz) and less than half the Vortex's MSRP ($199.99 vs $449.99). The Vortex's real advantages are its VIP unconditional warranty and 1x higher magnification (6x vs 5x). If deer-target range and price are the deciding factors, the Leupold wins on the numbers; if the warranty policy matters more to you than either, that changes the calculation.",
+      "The reflective-target ratings are close (1300 vs 1400 yd); on deer-sized targets the Leupold is rated 900 yd vs 600. The Leupold is also lighter (5.1 oz vs 7.7 oz) and less than half the Vortex's MSRP ($199.99 vs $449.99). The Vortex's real advantages are its VIP unconditional warranty and 1x higher magnification (6x vs 5x). If deer-target range and price are the deciding factors, the Leupold wins on the numbers; if the warranty policy matters more to you than either, that changes the calculation.",
     seoStatus: "DRAFT" as const,
     metaTitle: "Vortex Ranger 1300 vs Leupold RX-1400i TBR/W Gen 2 — Which Rangefinder?",
     metaDescription:

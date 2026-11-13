@@ -98,6 +98,7 @@ On these four products' specs, the trade-off is clear. Pick from the binoculars 
 
 - Binoculars head to head: [Vortex Diamondback HD 8x42 vs Nikon Monarch M5 8x42](/compare/vortex-diamondback-hd-8x42-vs-nikon-monarch-m5-8x42)
 - Scopes head to head: [Vortex Diamondback HD 20-60x85 vs Celestron Regal M2 20-60x80mm ED](/compare/vortex-diamondback-hd-20-60x85-vs-celestron-regal-m2-20-60x80ed)
+- What the scope specs mean: [Birding Spotting Scopes: How to Read the Specs](/guides/birding-spotting-scope-specs-explained)
 - Our scope roundup: [Best Spotting Scopes](/best/spotting-scopes)
 - Browse the categories: [Birding Optics](/categories/birding-optics) and [Spotting Scopes](/categories/spotting-scopes)
 

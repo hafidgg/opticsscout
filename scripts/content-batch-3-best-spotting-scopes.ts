@@ -48,7 +48,7 @@ async function main() {
     intent: "best spotting scope",
     categoryId: "category_spotting_scopes",
     verdict:
-      "Between the two spotting scopes we've evaluated so far, the Vortex Diamondback HD 20-60x85 is the stronger pick on pure specs: a larger 85mm objective for more light at range, a lower $699.99 MSRP than the Celestron's $879.95, and Vortex's unconditional VIP warranty. The Celestron Regal M2 20-60x80mm ED costs more and is heavier, but includes a T-mount digiscoping adapter and Celestron's own ED glass and XLT coating — worth it specifically if digiscoping is why you're buying one, less so if you're optimizing for light-gathering per dollar. Neither scope's real-world optical performance has been independently field-tested here — see how we test.",
+      "Between the two spotting scopes we've evaluated so far, the Vortex Diamondback HD 20-60x85 is the stronger pick on pure specs: a larger 85mm objective (vs 80mm), a lower $699.99 MSRP than the Celestron's $879.95, and Vortex's unconditional VIP warranty. The Celestron Regal M2 20-60x80mm ED costs more and is heavier, and has Celestron's own ED glass and XLT coating. The Celestron includes a T-adapter for attaching a camera with a T-ring, per Celestron. Neither scope's real-world optical performance has been independently field-tested here — see how we test.",
     seoStatus: "DRAFT",
     metaTitle: "Best Spotting Scopes — Compared",
     metaDescription:

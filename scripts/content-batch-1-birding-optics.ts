@@ -73,7 +73,7 @@ async function main() {
     brand: "Vortex Optics",
     categoryId: "category_birding_optics",
     description:
-      "An 8x42 roof-prism binocular from Vortex's HD tier, sitting below the Viper HD and Razor HD in the brand's own lineup. Dielectric-coated prisms and fully multi-coated HD lens elements target the sub-$350 price band, and every Vortex optic — including this one — carries the brand's unconditional VIP lifetime warranty.",
+      "An 8x42 roof-prism binocular from Vortex's HD tier, sitting below the Viper HD and Razor HD in the brand's own lineup. It has dielectric-coated prisms and fully multi-coated HD lens elements, per Vortex, and every Vortex optic — including this one — carries the brand's unconditional VIP lifetime warranty.",
     shortDescription: "8x42 roof-prism binocular, dielectric-coated HD optics, Vortex's unconditional VIP warranty.",
     images: [] as string[],
     specifications: {
@@ -90,26 +90,26 @@ async function main() {
       fogproof: true,
     } satisfies Prisma.InputJsonValue,
     features: [
-      "Dielectric-coated prisms for brighter, higher-contrast color",
+      "Dielectric-coated prisms",
       "Fully multi-coated HD lens elements",
       "Argon-purged and O-ring sealed (waterproof, fogproof)",
       "ArmorTek scratch-resistant exterior lens coating",
       "Vortex VIP unconditional lifetime warranty",
     ],
     pros: [
-      "393 ft field of view at 1000 yds is wide for this price tier",
-      "5-foot close focus is closer than several competitors in the same price band",
-      "Backed by Vortex's no-questions-asked VIP warranty",
+      "393 ft field of view at 1000 yds, versus 335 ft for the Nikon Monarch M5 8x42",
+      "5-foot close focus, versus 8.2 ft for the Nikon Monarch M5 8x42",
+      "Backed by Vortex's unconditional VIP lifetime warranty",
     ],
     cons: [
       "17mm eye relief, versus 19.5mm on the Nikon Monarch M5 8x42 — glasses wearers should compare the two before buying",
     ],
     whoItsFor:
-      "Birders shopping the $250-$350 tier who want a wide field of view for tracking moving birds and don't want to think about the warranty ever again. The 5-foot close focus also makes this a reasonable pick for backyard birders watching feeders at close range, not just distant field views.",
+      "Birders who want the widest field of view (393 ft) and closest focus (5 ft) of the two 8x42s we cover, plus Vortex's VIP warranty.",
     whoShouldAvoid:
       "Glasses wearers who need generous eye relief should compare this against the Nikon Monarch M5's 19.5mm eye relief before buying — see the comparison below.",
     verdict:
-      "On specifications alone, the Diamondback HD 8x42 earns its spot in the sub-$350 tier on field of view and close focus rather than on any single standout number. The real differentiator is Vortex's warranty policy, which removes long-term risk from the purchase in a way a spec sheet alone can't capture. We have not physically tested this unit ourselves; this page is built from Vortex's own published specifications and MSRP, not hands-on impressions — see our how-we-test page for what that does and doesn't mean for this page's reliability.",
+      "On specifications alone, the Diamondback HD 8x42 leads the two 8x42s we cover on field of view (393 ft vs 335 ft) and close focus (5 ft vs 8.2 ft), and trails on eye relief (17mm vs 19.5mm). It's also covered by Vortex's unconditional VIP lifetime warranty. We have not physically tested this unit ourselves; this page is built from Vortex's own published specifications and MSRP, not hands-on impressions — see our how-we-test page for what that does and doesn't mean for this page's reliability.",
     rating: null,
     reviewCount: null,
     seoStatus: "DRAFT" as const,
@@ -151,7 +151,7 @@ async function main() {
     brand: "Nikon",
     categoryId: "category_birding_optics",
     description:
-      "An 8x42 roof-prism binocular from Nikon's Monarch line, built around ED (extra-low dispersion) glass and phase-correction prisms with dielectric multilayer coatings. Nikon markets the Monarch M5 at a narrower field of view than the Diamondback HD in exchange for longer eye relief.",
+      "An 8x42 roof-prism binocular from Nikon's Monarch line, built around ED (extra-low dispersion) glass and phase-correction prisms with dielectric multilayer coatings. On published specs, it has a narrower field of view than the Diamondback HD 8x42 (335 ft vs 393 ft) and longer eye relief (19.5mm vs 17mm).",
     shortDescription: "8x42 roof-prism binocular with ED glass and long 19.5mm eye relief.",
     images: [] as string[],
     specifications: {
@@ -174,17 +174,17 @@ async function main() {
       "19.5mm eye relief",
     ],
     pros: [
-      "19.5mm eye relief is genuinely long — a real advantage for glasses wearers over the Diamondback HD's 17mm",
-      "ED glass at this price point is a real spec advantage, not just marketing language",
+      "19.5mm eye relief, versus 17mm on the Diamondback HD 8x42",
+      "ED (extra-low dispersion) glass, per Nikon",
     ],
     cons: [
-      "335 ft field of view at 1000 yds is narrower than the Diamondback HD's 393 ft — you'll pan more to track a moving bird",
-      "8.2-foot close focus is noticeably farther than the Diamondback HD's 5 feet, a real drawback for close backyard feeder watching",
+      "335 ft field of view at 1000 yds, versus 393 ft on the Diamondback HD 8x42",
+      "8.2 ft close focus, versus 5 ft on the Diamondback HD 8x42",
     ],
     whoItsFor:
-      "Birders who wear glasses and have found narrower-eye-relief binoculars uncomfortable or vignetted — 19.5mm is enough room to keep glasses on without losing the edges of the field of view. Also a reasonable pick for anyone who specifically wants ED glass at this price tier.",
+      "Buyers who prioritize eye relief (19.5mm, the longest of the two 8x42s we cover) or want ED glass.",
     whoShouldAvoid:
-      "Backyard birders who watch feeders at close range should notice the 8.2-foot close focus versus the Diamondback HD's 5 feet — that's a meaningfully different practical experience, not a marginal spec difference. Anyone prioritizing the widest possible field of view for tracking fast-moving birds should also look elsewhere.",
+      "Anyone who prioritizes close focus or field of view should compare this against the Diamondback HD 8x42 (5 ft and 393 ft, versus 8.2 ft and 335 ft).",
     verdict:
       "The Monarch M5 8x42 trades field of view and close focus for eye relief and ED glass relative to the Diamondback HD — neither is a strictly better binocular, they're built around different priorities. As with the Diamondback HD page, this verdict is built from Nikon's own published specifications, not hands-on field testing; see our how-we-test page for what that means for how much weight to put on this page.",
     rating: null,
@@ -229,7 +229,7 @@ async function main() {
     title: "Vortex Diamondback HD 8x42 vs Nikon Monarch M5 8x42",
     categoryId: "category_birding_optics",
     verdict:
-      "These sit in the same price tier and share magnification, objective size, and weight, but they're tuned for different priorities. The Diamondback HD's 393 ft field of view and 5-foot close focus favor tracking moving birds and close feeder-watching; the Monarch M5's 19.5mm eye relief and ED glass favor glasses wearers and anyone weighting optical glass quality over field of view. Vortex's unconditional VIP warranty is a real, structural advantage the Monarch M5 doesn't match spec-for-spec — Nikon's warranty is more conventional. Neither is the wrong choice; the right one depends on which tradeoff matters more for how you actually bird.",
+      "These share magnification and objective size (8x42); Vortex lists 21.8 oz and Nikon 22.2 oz. The Diamondback HD has the wider field of view (393 vs 335 ft) and closer focus (5 vs 8.2 ft); the Monarch M5 has longer eye relief (19.5 vs 17mm) and ED glass. Vortex's VIP warranty is unconditional and lifetime; we don't have Nikon's warranty terms on file. Neither is the wrong choice; the right one depends on which tradeoff matters more for how you actually bird.",
     seoStatus: "DRAFT" as const,
     metaTitle: "Vortex Diamondback HD 8x42 vs Nikon Monarch M5 8x42 — Which Should You Buy?",
     metaDescription:
