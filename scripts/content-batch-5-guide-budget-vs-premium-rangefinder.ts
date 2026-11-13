@@ -58,7 +58,7 @@ Measured against the specs we have on file, the higher price doesn't buy more ra
 
 - Range: the Leupold is rated to 1,400 yards on reflective targets and 900 yards on deer-sized targets. The Vortex is rated to 1,300 yards reflective and 600 yards on deer. On deer-sized targets, the cheaper unit is rated 300 yards farther.
 - Accuracy: Leupold publishes ±0.5 yard to 125 yards and ±2 yards to 1,000 yards. The Vortex figure we have is ±3 yards at 1,000 yards. That figure comes from retailer listings citing Vortex's spec rather than Vortex's own page, so we treat it with somewhat less confidence.
-- Angle compensation: both have it. The Vortex has an angle-compensated (HCD) distance mode via a built-in inclinometer. The Leupold's True Ballistic Range/Wind (TBR/W) calculates a holdover that accounts for angle and wind.
+- Angle compensation: both have it. The Vortex has an angle-compensated (HCD) distance mode, per Vortex. The Leupold's True Ballistic Range/Wind (TBR/W) calculates a holdover that accounts for angle and wind.
 - Waterproofing: both are listed as waterproof.
 - Warranty: the Vortex carries Vortex's unconditional VIP lifetime warranty. We don't have Leupold's warranty terms on file, so we can't compare the two on this point.
 
