@@ -16,6 +16,7 @@ export async function getIndexableProductPaths(): Promise<IndexableEntry[]> {
   const products = await prisma.product.findMany({
     where: { seoStatus: "INDEXABLE" },
     select: { slug: true, canonicalPath: true, updatedAt: true },
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
   });
   return products.map((p) => ({
     path: p.canonicalPath ?? `/products/${p.slug}`,
@@ -27,6 +28,7 @@ export async function getIndexableComparisonPaths(): Promise<IndexableEntry[]> {
   const comparisons = await prisma.comparison.findMany({
     where: { seoStatus: "INDEXABLE" },
     select: { slug: true, canonicalPath: true, updatedAt: true },
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
   });
   return comparisons.map((c) => ({
     path: c.canonicalPath ?? `/compare/${c.slug}`,
@@ -38,6 +40,7 @@ export async function getIndexableGuidePaths(): Promise<IndexableEntry[]> {
   const guides = await prisma.guide.findMany({
     where: { seoStatus: "INDEXABLE" },
     select: { slug: true, canonicalPath: true, updatedAt: true },
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
   });
   return guides.map((g) => ({
     path: g.canonicalPath ?? `/guides/${g.slug}`,
@@ -49,6 +52,7 @@ export async function getIndexableBestPagePaths(): Promise<IndexableEntry[]> {
   const bestPages = await prisma.bestPage.findMany({
     where: { seoStatus: "INDEXABLE" },
     select: { slug: true, canonicalPath: true, updatedAt: true },
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
   });
   return bestPages.map((b) => ({
     path: b.canonicalPath ?? `/best/${b.slug}`,
@@ -64,6 +68,7 @@ export async function getIndexableCategoryPaths(): Promise<IndexableEntry[]> {
   const categories = await prisma.category.findMany({
     where: { products: { some: { seoStatus: "INDEXABLE" } } },
     select: { slug: true, updatedAt: true },
+    orderBy: { name: "asc" },
   });
   return categories.map((c) => ({
     path: `/categories/${c.slug}`,

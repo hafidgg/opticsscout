@@ -125,7 +125,7 @@ export async function getProductBySlug(slug: string): Promise<ResolvedProduct | 
     where: { slug },
     include: {
       category: true,
-      offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true } },
+      offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true }, orderBy: { createdAt: "asc" } },
       sourceRecords: { select: { source: true, field: true, retrievedAt: true } },
     },
   });
@@ -279,6 +279,7 @@ export async function getCategoryBySlug(slug: string): Promise<ResolvedCategory 
     prisma.comparison.findMany({
       where: { categoryId: categoryFields.id, seoStatus: "INDEXABLE" },
       select: { title: true, slug: true, canonicalPath: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     }),
     // Same INDEXABLE-only rule as comparisons above — a DRAFT BestPage (like the new
     // "Best Spotting Scopes" page while it's under review) simply doesn't appear here
@@ -286,6 +287,7 @@ export async function getCategoryBySlug(slug: string): Promise<ResolvedCategory 
     prisma.bestPage.findMany({
       where: { categoryId: categoryFields.id, seoStatus: "INDEXABLE" },
       select: { title: true, slug: true, canonicalPath: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     }),
     prisma.guide.findMany({
       where: {
@@ -358,7 +360,7 @@ export async function getHomepageCategories(): Promise<Category[]> {
 export async function getFeaturedProducts(limit = 8) {
   const products = await prisma.product.findMany({
     where: { seoStatus: "INDEXABLE", category: { parentId: { not: null } } },
-    include: { category: true, offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true } } },
+    include: { category: true, offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true }, orderBy: { createdAt: "asc" } } },
     orderBy: { updatedAt: "desc" },
     take: limit,
   });
@@ -370,6 +372,7 @@ export async function getIndexableGuideSummaries() {
   return prisma.guide.findMany({
     where: { seoStatus: "INDEXABLE" },
     select: { slug: true, title: true, canonicalPath: true },
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
   });
 }
 
@@ -391,7 +394,7 @@ export async function getComparisonBySlug(slug: string): Promise<ResolvedCompari
       category: true,
       products: {
         orderBy: { position: "asc" },
-        include: { product: { include: { offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true } } } } },
+        include: { product: { include: { offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true }, orderBy: { createdAt: "asc" } } } } },
       },
     },
   });
@@ -469,7 +472,7 @@ export async function getGuideBySlug(slug: string): Promise<ResolvedGuide | null
       category: true,
       products: {
         orderBy: { position: "asc" },
-        include: { product: { include: { offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true } } } } },
+        include: { product: { include: { offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true }, orderBy: { createdAt: "asc" } } } } },
       },
     },
   });
@@ -599,7 +602,7 @@ export async function getBestPageBySlug(slug: string): Promise<ResolvedBestPage 
       category: true,
       products: {
         orderBy: { position: "asc" },
-        include: { product: { include: { offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true } } } } },
+        include: { product: { include: { offers: { where: ACTIVE_OFFER_FILTER, include: { merchant: true }, orderBy: { createdAt: "asc" } } } } },
       },
     },
   });
@@ -694,10 +697,10 @@ export async function searchContent(query: string): Promise<SearchResult[]> {
   if (q.length === 0) return [];
 
   const [products, guides, comparisons, bestPages] = await Promise.all([
-    prisma.product.findMany({ where: { seoStatus: "INDEXABLE" } }),
-    prisma.guide.findMany({ where: { seoStatus: "INDEXABLE" } }),
-    prisma.comparison.findMany({ where: { seoStatus: "INDEXABLE" } }),
-    prisma.bestPage.findMany({ where: { seoStatus: "INDEXABLE" } }),
+    prisma.product.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
+    prisma.guide.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
+    prisma.comparison.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
+    prisma.bestPage.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
   ]);
 
   const results: SearchResult[] = [];
