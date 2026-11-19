@@ -1,0 +1,27 @@
+# Cloudflare Workers TEST deployment of OpticsScout (Migration M3). workers.dev only:
+# no routes, no custom domain. Production stays on Vercel. Never put secrets here;
+# DATABASE_URL is supplied as a secret / local shell variable, never committed.
+name = "opticsscout-cf-test"
+main = "cloudflare/worker.js"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+workers_dev = true
+preview_urls = false
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[vars]
+# Selects the per-request Prisma client in src/lib/db/client.ts. Never set on Vercel.
+OPTICSSCOUT_RUNTIME = "cloudflare-workers"
+# Public Amazon Associates tag (not a secret). Used at runtime by /api/click for Amazon
+# offers; buy buttons have it baked in at build time.
+AMAZON_ASSOCIATE_TAG = "opticsscout06-20"
+# Worker-only database driver: "pg" (node-postgres over TCP, default), "neon-http"
+# (Neon serverless driver over HTTPS) or "neon-sql" (raw SQL for /search and the click
+# routes). See src/lib/db/client.ts and src/lib/db/neon-sql.ts.
+OPTICSSCOUT_DB_DRIVER = "pg"
+
+[observability]
+enabled = true

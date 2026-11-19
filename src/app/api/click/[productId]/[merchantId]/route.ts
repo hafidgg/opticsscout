@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { getAffiliateUrl } from "@/lib/affiliate";
-import { prisma } from "@/lib/db/client";
+import { getOfferAndMerchant, recordClickEvent } from "@/lib/db/click-data";
 
 /**
  * GET /api/click/[productId]/[merchantId]
@@ -36,10 +36,7 @@ export async function GET(
   const page = searchParams.get("page") ?? "unknown";
   const placement = searchParams.get("placement") ?? "unknown";
 
-  const [offer, merchant] = await Promise.all([
-    prisma.productOffer.findUnique({ where: { productId_merchantId: { productId, merchantId } } }),
-    prisma.merchant.findUnique({ where: { id: merchantId } }),
-  ]);
+  const { offer, merchant } = await getOfferAndMerchant(productId, merchantId);
 
   if (!offer || !merchant || !offer.active || !merchant.active) {
     return NextResponse.json(
@@ -59,9 +56,7 @@ export async function GET(
   // Never let a tracking failure block the redirect — the user reaching the merchant
   // matters more than one lost click record. Errors are swallowed, not surfaced.
   try {
-    await prisma.clickEvent.create({
-      data: { productId, merchantId, page, placement, sessionId },
-    });
+    await recordClickEvent({ productId, merchantId, page, placement, sessionId });
   } catch (error) {
     console.error("Failed to record ClickEvent (navigation proceeds regardless):", error);
   }

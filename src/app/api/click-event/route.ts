@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-import { prisma } from "@/lib/db/client";
+import { getOfferWithMerchant, recordClickEvent } from "@/lib/db/click-data";
 
 /**
  * POST /api/click-event — records a ClickEvent for direct (non-redirect) outbound
@@ -20,23 +20,18 @@ export async function POST(request: NextRequest) {
     const merchantId = body?.merchantId;
     if (typeof productId !== "string" || typeof merchantId !== "string") return done;
 
-    const offer = await prisma.productOffer.findUnique({
-      where: { productId_merchantId: { productId, merchantId } },
-      include: { merchant: true },
-    });
+    const offer = await getOfferWithMerchant(productId, merchantId);
     if (!offer || !offer.active || !offer.merchant.active) return done;
 
     const existing = request.cookies.get("anon_session_id")?.value;
     const sessionId = existing ?? randomUUID();
 
-    await prisma.clickEvent.create({
-      data: {
-        productId,
-        merchantId,
-        page: clip(body.page, 300),
-        placement: clip(body.placement, 100),
-        sessionId,
-      },
+    await recordClickEvent({
+      productId,
+      merchantId,
+      page: clip(body.page, 300),
+      placement: clip(body.placement, 100),
+      sessionId,
     });
 
     // Anonymous session cookie only — no identity, no PII (Section 18/19).

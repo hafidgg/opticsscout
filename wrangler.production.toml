@@ -1,0 +1,48 @@
+# PRODUCTION Worker for opticsscout.com (Cloudflare cutover, docs/CLOUDFLARE_CUTOVER_PLAN.md).
+# NOT DEPLOYED. Deploy only with the owner's explicit approval, from a cf:build:clean
+# worktree:   npx wrangler deploy --config wrangler.production.toml
+# The test Worker keeps using wrangler.toml (opticsscout-cf-test, workers.dev only).
+#
+# Secrets (never in this file): DATABASE_URL = production pooled URL, set with
+#   printf %s "$URL" | npx wrangler secret put DATABASE_URL --config wrangler.production.toml
+# No deploy-time --var overrides: every runtime value is below.
+
+name = "opticsscout"
+main = "cloudflare/worker.js"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+
+# No workers.dev URL and no preview URLs for the production Worker.
+workers_dev = false
+preview_urls = false
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[vars]
+# Selects the per-request Workers database path in src/lib/db/client.ts.
+OPTICSSCOUT_RUNTIME = "cloudflare-workers"
+# Raw SQL for /search and the click routes (decision M8: Workers Free plan).
+OPTICSSCOUT_DB_DRIVER = "neon-sql"
+# Public Amazon Associates tag (not a secret); /api/click for Amazon offers.
+AMAZON_ASSOCIATE_TAG = "opticsscout06-20"
+
+[observability]
+enabled = true
+
+# ---------------------------------------------------------------------------------------
+# CUSTOM DOMAINS — NOT ACTIVE UNTIL THE OWNER APPROVES THE DEPLOY.
+# Requires the opticsscout.com zone to be Active on Cloudflare (Phase 1 of the cutover
+# plan) and the apex A record / www CNAME removed first (Phase 2). Uncommenting these and
+# deploying attaches both hostnames to this Worker and moves production traffic to it.
+# www.opticsscout.com is answered with a 308 to the apex by cloudflare/worker.js.
+#
+# [[routes]]
+# pattern = "opticsscout.com"
+# custom_domain = true
+#
+# [[routes]]
+# pattern = "www.opticsscout.com"
+# custom_domain = true
+# ---------------------------------------------------------------------------------------

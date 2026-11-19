@@ -21,6 +21,7 @@
 
 import type { Product, ProductOffer, Merchant, Category } from "@prisma/client";
 import { prisma } from "@/lib/db/client";
+import { searchRowsSql, isWorkerSqlMode } from "@/lib/db/neon-sql";
 import {
   runQualityGate,
   type QualityGateResult,
@@ -696,12 +697,20 @@ export async function searchContent(query: string): Promise<SearchResult[]> {
   const q = query.trim().toLowerCase();
   if (q.length === 0) return [];
 
-  const [products, guides, comparisons, bestPages] = await Promise.all([
-    prisma.product.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
-    prisma.guide.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
-    prisma.comparison.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
-    prisma.bestPage.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
-  ]);
+  // Rows: Prisma everywhere, except the Worker's raw-SQL mode (OPTICSSCOUT_DB_DRIVER =
+  // "neon-sql"), which runs the same four INDEXABLE selects, in the same order, as plain
+  // SQL. The matching below is shared, so both paths produce identical results.
+  const { products, guides, comparisons, bestPages } = isWorkerSqlMode()
+    ? await searchRowsSql()
+    : await (async () => {
+        const [products, guides, comparisons, bestPages] = await Promise.all([
+          prisma.product.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
+          prisma.guide.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
+          prisma.comparison.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
+          prisma.bestPage.findMany({ where: { seoStatus: "INDEXABLE" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
+        ]);
+        return { products, guides, comparisons, bestPages };
+      })();
 
   const results: SearchResult[] = [];
 
