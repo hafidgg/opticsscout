@@ -25,6 +25,13 @@
 // through this code.
 
 import handler from "../.open-next/worker.js";
+// Workers-only modules, registered for src/lib/db/worker-modules.ts. The app code never
+// imports these packages itself, so the Node/Vercel build does not load or bundle them.
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { PrismaNeonHttp } from "@prisma/adapter-neon";
+import { neon } from "@neondatabase/serverless";
+
+globalThis[Symbol.for("opticsscout.workerModules")] = { getCloudflareContext, PrismaNeonHttp, neon };
 
 const TEST_HOST = /(\.workers\.dev|^localhost|^127\.0\.0\.1)$/;
 const APEX = "opticsscout.com";

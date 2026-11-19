@@ -30,9 +30,24 @@ served from the static-assets incremental cache (measured ≈110–150 ms p50, C
 - **D2. Worker → a fresh copy in the owner's Neon account** (§2). Hosting and DB move
   together. Risk: clicks split between two DBs while DNS propagates; needs a merge step.
 
-### 1.3 Unordered queries (open, not fixed)
+### 1.3 Unordered queries (resolved: shipped in Round 5)
 
-Several `findMany` calls without `orderBy` (e.g. `src/lib/seo/indexable-content.ts`, the
+**Status:** the explicit `orderBy` below shipped to production in Round 5 (commit `9f72e62`,
+live 2026-11-19 12:29 UTC). Verified live: guides, comparisons and best pages kept their
+order everywhere; products (sitemap, search) and sitemap categories changed order only;
+all 29 pages otherwise identical. The order no longer depends on physical row order, so a
+dump/restore (§2) cannot reorder anything.
+
+**The two search paths (Prisma vs Worker `neon-sql`) after Round 5/6:** both now select the
+same INDEXABLE rows with the same `ORDER BY "createdAt" ASC, "id" ASC` and share one
+matching loop, so result sets and order are identical (checked by
+`npm run cf:verify:equivalence`). Remaining differences, none visible in rendered output:
+(a) the SQL path selects only the columns the search uses, Prisma selects all columns;
+(b) the SQL path sends the four selects as one read-only HTTP batch, Prisma as four
+parallel queries; (c) any future change to search filters or ordering must be made in both
+`searchContent` (`repository.ts`) and `searchRowsSql` (`neon-sql.ts`).
+
+History: several `findMany` calls without `orderBy` (e.g. `src/lib/seo/indexable-content.ts`, the
 home page guide list, `searchContent`) return rows in physical order. After any
 dump/restore the order can change: observed on the copy as two home-page guide links
 swapped and a reordered sitemap (same entries). Options: (a) add explicit `orderBy` before
@@ -40,8 +55,8 @@ the switch (code change, affects Vercel output too; needs its own review), (b) a
 reordering (content unchanged; only list order differs).
 
 Decision (M8): explicit `orderBy` before the switch. Proposal from a read-only comparison of
-the LIVE rendered order (2026-11-19) with candidate keys on the PRODUCTION database (not yet
-implemented):
+the LIVE rendered order (2026-11-19) with candidate keys on the PRODUCTION database
+(implemented in Round 5 as proposed; the `neon-sql.ts` ORDER BY was added in Round 6):
 
 | List (file) | Live order reproduced by | Proposed `orderBy` | Rendering change on production |
 |---|---|---|---|

@@ -9,15 +9,17 @@
  * Never used on Vercel/Node or during the build: callers check isWorkerSqlMode() first.
  */
 
-import { neon } from "@neondatabase/serverless";
 import type { SeoStatus } from "@prisma/client";
 import { cuid } from "./cuid";
+import { workerModules } from "./worker-modules";
 
 export const isWorkerSqlMode = () =>
   process.env.OPTICSSCOUT_RUNTIME === "cloudflare-workers" &&
   process.env.OPTICSSCOUT_DB_DRIVER === "neon-sql";
 
-const sql = () => neon(process.env.DATABASE_URL as string);
+// @neondatabase/serverless is provided by the Workers entry (worker-modules.ts); it is
+// never imported on the Node/Vercel path.
+const sql = () => workerModules().neon(process.env.DATABASE_URL as string);
 
 // ---- search: mirrors prisma.<model>.findMany({ where: { seoStatus: "INDEXABLE" } }) ------
 // No ORDER BY, exactly like the Prisma queries (result order = database order).

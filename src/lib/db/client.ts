@@ -1,8 +1,9 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaNeonHttp } from "@prisma/adapter-neon";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
+// Workers-only modules come from a registry filled by cloudflare/worker.js; nothing from
+// @opennextjs/cloudflare or the Neon packages is imported (or bundled) on the Node path.
+import { workerModules } from "./worker-modules";
 
 declare global {
   var __prisma: PrismaClient | undefined;
@@ -36,14 +37,14 @@ const perRequest = new WeakMap<object, PrismaClient>();
 function workerAdapter() {
   const driver = process.env.OPTICSSCOUT_DB_DRIVER;
   if (driver === "neon-http" || driver === "neon-sql") {
-    return new PrismaNeonHttp(process.env.DATABASE_URL as string, {});
+    return new (workerModules().PrismaNeonHttp)(process.env.DATABASE_URL as string, {});
   }
   // PoolConfig, not a Pool instance: PrismaPg builds its own single-connection pool.
   return new PrismaPg({ connectionString: process.env.DATABASE_URL, max: 1 });
 }
 
 function workerClient(): PrismaClient {
-  const ctx = getCloudflareContext().ctx as object;
+  const ctx = workerModules().getCloudflareContext().ctx as object;
   let client = perRequest.get(ctx);
   if (!client) {
     client = new PrismaClient({ adapter: workerAdapter() });
